@@ -53,6 +53,24 @@ class characterPepe extends MovableObject {
 
     ];
 
+    IMAGES_PEPE_HURT = [
+        './img/2_character_pepe/4_hurt/H-41.png',
+        './img/2_character_pepe/4_hurt/H-42.png',
+        './img/2_character_pepe/4_hurt/H-43.png',
+    ];
+
+    IMAGES_PEPE_DIES = [
+        './img/2_character_pepe/5_dead/D-51.png',
+        './img/2_character_pepe/5_dead/D-52.png',
+        './img/2_character_pepe/5_dead/D-53.png',
+        './img/2_character_pepe/5_dead/D-54.png',
+        './img/2_character_pepe/5_dead/D-55.png',
+        './img/2_character_pepe/5_dead/D-56.png',
+        './img/2_character_pepe/5_dead/D-57.png',
+    ];
+    isHurt = false;
+    hurtTimeout = 1000;
+    lastHurtTime = 0;
     currentImage = 0;
     world;
 
@@ -62,6 +80,8 @@ class characterPepe extends MovableObject {
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.loadImages(this.IMAGES_JUMP);
+        this.loadImages(this.IMAGES_PEPE_HURT);
+        this.loadImages(this.IMAGES_PEPE_DIES);
 
         this.applyGravity();
         this.animate();
@@ -105,7 +125,7 @@ class characterPepe extends MovableObject {
 
     jump() {
         if (!this.aboveGround()) {
-            this.speedY = 20;
+            this.speedY = 25;
             this.lastActionTime = Date.now();
         }
     }
@@ -128,6 +148,13 @@ class characterPepe extends MovableObject {
                 this.playAnimation(this.IMAGES_LONG_IDLE);
             } else {
                 this.playAnimation(this.IMAGES_IDLE);
+            }
+            if (this.isDead()) {
+                this.playAnimation(this.IMAGES_PEPE_DIES);
+            }
+            if (this.isHurt) {
+                this.playAnimation(this.IMAGES_PEPE_HURT);
+                return;
             }
 
         }, 120);
@@ -154,6 +181,19 @@ class characterPepe extends MovableObject {
     playJumpDown() {
         let jumpDownImages = this.IMAGES_JUMP.slice(4);
         this.playAnimation(jumpDownImages);
+    }
+
+    hurt() {
+        if (this.isHurt) return;
+
+        this.isHurt = true;
+        this.lastHurtTime = Date.now();
+        this.currentImage = 0;
+
+        setTimeout(() => {
+            this.isHurt = false;
+            this.currentImage = 0;
+        }, this.hurtTimeout);
     }
 
 }
