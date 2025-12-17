@@ -5,13 +5,10 @@ class MovableObject extends drawableObject {
     acceleration = 2;
     LP = 100;
 
+
     applyGravity() {
         setInterval(() => {
-            if (this.isDeadFalling) {
-                this.y += 12;
-                return;
-            }
-            if (this.aboveGround() || this.speedY > 0) {
+            if (this.y < 180 || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
                 if (this.y > 180) {
@@ -44,7 +41,6 @@ class MovableObject extends drawableObject {
         const hitboxY = this.y + 40;
         const hitboxW = this.width - 60;
         const hitboxH = this.height - 60;
-
         return (
             hitboxX + hitboxW > mo.x &&
             hitboxY + hitboxH > mo.y &&
@@ -58,6 +54,7 @@ class MovableObject extends drawableObject {
         if (this.LP < 0) {
             this.LP = 0
         };
+    
     }
 
     isDead() {

@@ -45,10 +45,12 @@ function createCoins() {
 
 function createBottles() {
     let bottles = [];
-    bottles.push(new Bottle(500, 160));
-    bottles.push(new Bottle(900, 160));
-    bottles.push(new Bottle(1300, 160));
-    bottles.push(new Bottle(1700, 160));
+    bottles.push(new Bottle(500, 370));
+    bottles.push(new Bottle(700, 370));
+    bottles.push(new Bottle(900, 370));
+    bottles.push(new Bottle(1150, 370));
+    bottles.push(new Bottle(1300, 370));
+    bottles.push(new Bottle(1400, 370));
     return bottles;
 }
 

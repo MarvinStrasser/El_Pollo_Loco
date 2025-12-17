@@ -6,6 +6,7 @@ class characterPepe extends MovableObject {
     lastActionTime = Date.now();
     longIdleTimeout = 15000;
     coins = 0;
+    bottles = 0;
     lastHit = 0;
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
