@@ -5,6 +5,8 @@ class characterPepe extends MovableObject {
     speed = 5;
     lastActionTime = Date.now();
     longIdleTimeout = 15000;
+    coins = 0;
+    lastHit = 0;
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
         './img/2_character_pepe/2_walk/W-22.png',
@@ -69,8 +71,9 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-57.png',
     ];
 
+    LP = 100;
     isHurt = false;
-    hurtTimeout = 700;
+    hurtTimeout = 100;
     lastHurtTime = 0;
     isDeadFalling = false;
     currentImage = 0;
@@ -169,6 +172,15 @@ class characterPepe extends MovableObject {
     playJumpDown() {
         let jumpDownImages = this.IMAGES_JUMP.slice(4);
         this.playAnimation(jumpDownImages);
+    }
+
+    hit(damage = 40) {
+        if (this.isHurt) return;
+
+        this.LP -= damage;
+        if (this.LP < 0) this.LP = 0;
+
+        this.hurt();
     }
 
     hurt() {

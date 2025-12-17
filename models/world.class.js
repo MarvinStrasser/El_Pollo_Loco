@@ -5,6 +5,7 @@ class World {
     ctx;
     keyboard;
     camera_x = 0;
+    lastHit = 0;
     statusBar = new statusBar('health');
     coinBar = new statusBar('coins');
     bottleBar = new statusBar('bottles');
@@ -28,8 +29,7 @@ class World {
     checkCollisions() {
         this.level.enemies.forEach((enemy) => {
             if (this.character.isColliding(enemy)) {
-                this.character.hit();
-                this.character.hurt();
+                this.character.hit(5);
                 this.statusBar.setPercentage(this.character.LP);
             }
         });
