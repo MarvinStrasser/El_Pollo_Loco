@@ -68,9 +68,11 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-56.png',
         './img/2_character_pepe/5_dead/D-57.png',
     ];
+
     isHurt = false;
-    hurtTimeout = 1000;
+    hurtTimeout = 700;
     lastHurtTime = 0;
+    isDeadFalling = false;
     currentImage = 0;
     world;
 
@@ -132,32 +134,18 @@ class characterPepe extends MovableObject {
 
     handleAnimation() {
         setInterval(() => {
-            if (this.speedY > 0) {
-                this.playJumpUp();
-                return;
-            }
-            if (this.aboveGround()) {
-                this.playJumpDown();
-                return;
-            }
-            if (this.isMoving()) {
-                this.playAnimation(this.IMAGES_WALKING);
-                return;
-            }
-            if (this.isLongIdle()) {
-                this.playAnimation(this.IMAGES_LONG_IDLE);
-            } else {
-                this.playAnimation(this.IMAGES_IDLE);
-            }
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_PEPE_DIES);
-            }
-            if (this.isHurt) {
-                this.playAnimation(this.IMAGES_PEPE_HURT);
-                return;
-            }
-
+            this.playCurrentAnimation();
         }, 120);
+    }
+
+    playCurrentAnimation() {
+        if (this.isDead()) return this.playAnimation(this.IMAGES_PEPE_DIES);
+        if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
+        if (this.speedY > 0) return this.playJumpUp();
+        if (this.aboveGround()) return this.playJumpDown();
+        if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
+        if (this.isLongIdle()) return this.playAnimation(this.IMAGES_LONG_IDLE);
+        this.playAnimation(this.IMAGES_IDLE);
     }
 
 
@@ -192,8 +180,16 @@ class characterPepe extends MovableObject {
 
         setTimeout(() => {
             this.isHurt = false;
-            this.currentImage = 0;
+
+            if (this.isDead()) {
+                this.die();
+            }
         }, this.hurtTimeout);
+    }
+
+    die() {
+        if (this.isDeadFalling) return;
+        this.isDeadFalling = true;
     }
 
 }

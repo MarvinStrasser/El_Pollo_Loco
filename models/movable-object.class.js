@@ -1,11 +1,4 @@
-class MovableObject {
-    x = 150;
-    y = 180;
-    img;
-    height = 150;
-    width = 100;
-    imageCache = [];
-    currentImage = 0;
+class MovableObject extends drawableObject {
     speed = 0.15;
     otherDirection = false;
     speedY = 0;
@@ -14,10 +7,13 @@ class MovableObject {
 
     applyGravity() {
         setInterval(() => {
+            if (this.isDeadFalling) {
+                this.y += 12;
+                return;
+            }
             if (this.aboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
-
                 if (this.y > 180) {
                     this.y = 180;
                     this.speedY = 0;
@@ -28,21 +24,6 @@ class MovableObject {
 
     aboveGround() {
         return this.y < 180;
-    }
-
-
-    loadImage(path) {
-        this.img = new Image();
-        this.img.src = path;
-    }
-
-    loadImages(arr) {
-        arr.forEach((path) => {
-            let img = new Image();
-            img.src = path;
-            img.style = 'transform: scaleX(-1)';
-            this.imageCache[path] = img;
-        });
     }
 
     playAnimation(images) {
@@ -58,20 +39,6 @@ class MovableObject {
         }, 1000 / 60);
     }
 
-    draw(ctx) {
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
-
-    drawFrame(ctx) {
-        if (this instanceof characterPepe || this instanceof enemyChicken || this instanceof Coin || this instanceof Endboss) {
-            ctx.beginPath();
-            ctx.lineWidth = '5';
-            ctx.strikeStyle = 'blue';
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-        }
-    }
-
     isColliding(mo) {
         const hitboxX = this.x + 30;
         const hitboxY = this.y + 40;
@@ -85,7 +52,7 @@ class MovableObject {
             hitboxY < mo.y + mo.height
         );
     }
-    
+
     hit() {
         this.LP -= 5;
         if (this.LP < 0) {
@@ -96,6 +63,5 @@ class MovableObject {
     isDead() {
         return this.LP == 0;
     }
-
 
 }
