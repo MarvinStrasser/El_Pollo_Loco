@@ -7,21 +7,23 @@ class characterPepe extends MovableObject {
     longIdleTimeout = 15000;
     coins = 0;
     bottles = 0;
-    lastHit = 0;
     LP = 100;
+    hasMoved = false;
     isHurt = false;
     hurtTimeout = 100;
-    lastHurtTime = 0;
     isDeadFalling = false;
-    currentImage = 0;
+    deathImageIndex = 0;
+    deathInterval = null;
+    deathFallSpeed = 30;
     world;
+
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
         './img/2_character_pepe/2_walk/W-22.png',
         './img/2_character_pepe/2_walk/W-23.png',
         './img/2_character_pepe/2_walk/W-24.png',
         './img/2_character_pepe/2_walk/W-25.png',
-        './img/2_character_pepe/2_walk/W-26.png',
+        './img/2_character_pepe/2_walk/W-26.png'
     ];
 
     IMAGES_IDLE = [
@@ -34,7 +36,7 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/1_idle/idle/I-7.png',
         './img/2_character_pepe/1_idle/idle/I-8.png',
         './img/2_character_pepe/1_idle/idle/I-9.png',
-        './img/2_character_pepe/1_idle/idle/I-10.png',
+        './img/2_character_pepe/1_idle/idle/I-10.png'
     ];
 
     IMAGES_LONG_IDLE = [
@@ -47,7 +49,7 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/1_idle/long_idle/I-17.png',
         './img/2_character_pepe/1_idle/long_idle/I-18.png',
         './img/2_character_pepe/1_idle/long_idle/I-19.png',
-        './img/2_character_pepe/1_idle/long_idle/I-20.png',
+        './img/2_character_pepe/1_idle/long_idle/I-20.png'
     ];
 
     IMAGES_JUMP = [
@@ -59,14 +61,13 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/3_jump/J-36.png',
         './img/2_character_pepe/3_jump/J-37.png',
         './img/2_character_pepe/3_jump/J-38.png',
-        './img/2_character_pepe/3_jump/J-39.png',
-
+        './img/2_character_pepe/3_jump/J-39.png'
     ];
 
     IMAGES_PEPE_HURT = [
         './img/2_character_pepe/4_hurt/H-41.png',
         './img/2_character_pepe/4_hurt/H-42.png',
-        './img/2_character_pepe/4_hurt/H-43.png',
+        './img/2_character_pepe/4_hurt/H-43.png'
     ];
 
     IMAGES_PEPE_DIES = [
@@ -76,7 +77,7 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-54.png',
         './img/2_character_pepe/5_dead/D-55.png',
         './img/2_character_pepe/5_dead/D-56.png',
-        './img/2_character_pepe/5_dead/D-57.png',
+        './img/2_character_pepe/5_dead/D-57.png'
     ];
 
 
@@ -88,7 +89,6 @@ class characterPepe extends MovableObject {
         this.loadImages(this.IMAGES_JUMP);
         this.loadImages(this.IMAGES_PEPE_HURT);
         this.loadImages(this.IMAGES_PEPE_DIES);
-
         this.applyGravity();
         this.animate();
     }
@@ -100,56 +100,42 @@ class characterPepe extends MovableObject {
 
     handleMovement() {
         setInterval(() => {
-            if (this.world.keyboard.RIGHT) {
-                this.moveRight();
+            if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
+                this.hasMoved = true;
+                this.world.activateEnemies();
             }
-            if (this.world.keyboard.LEFT) {
-                this.moveLeft();
-            }
-            if (this.world.keyboard.UP) {
-                this.jump();
-            }
+            if (this.isDead()) return;
+            if (this.world.keyboard.RIGHT) this.moveRight();
+            if (this.world.keyboard.LEFT) this.moveLeft();
+            if (this.world.keyboard.UP) this.jump();
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
     }
 
-    moveRight() {
-        if (this.x < this.world.level.level_end_x) {
-            this.x += this.speed;
-            this.otherDirection = false;
-            this.lastActionTime = Date.now();
-        }
-    }
-
-    moveLeft() {
-        if (this.x > 0) {
-            this.x -= this.speed;
-            this.otherDirection = true;
-            this.lastActionTime = Date.now();
-        }
-    }
-
-    jump() {
-        if (!this.aboveGround()) {
-            this.speedY = 25;
-            this.lastActionTime = Date.now();
-        }
-    }
-
     handleAnimation() {
-        setInterval(() => {
-            this.playCurrentAnimation();
-        }, 120);
+        setInterval(() => this.playCurrentAnimation(), 120);
     }
 
     playCurrentAnimation() {
-        if (this.isDead()) return this.playAnimation(this.IMAGES_PEPE_DIES);
+        if (this.isDead()) return;
         if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
         if (this.speedY > 0) return this.playJumpUp();
         if (this.aboveGround()) return this.playJumpDown();
         if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
         if (this.isLongIdle()) return this.playAnimation(this.IMAGES_LONG_IDLE);
         this.playAnimation(this.IMAGES_IDLE);
+    }
+
+    moveRight() {
+        if (this.x < this.world.level.level_end_x) { this.x += this.speed; this.otherDirection = false; this.lastActionTime = Date.now(); }
+    }
+
+    moveLeft() {
+        if (this.x > 0) { this.x -= this.speed; this.otherDirection = true; this.lastActionTime = Date.now(); }
+    }
+
+    jump() {
+        if (!this.aboveGround()) { this.speedY = 25; this.lastActionTime = Date.now(); }
     }
 
     isMoving() {
@@ -160,22 +146,16 @@ class characterPepe extends MovableObject {
         return Date.now() - this.lastActionTime > this.longIdleTimeout;
     }
 
-    isJumping() {
-        return this.world.keyboard.UP;
-    }
-
     playJumpUp() {
-        let jumpUpImages = this.IMAGES_JUMP.slice(3, 4);
-        this.playAnimation(jumpUpImages);
+        this.playAnimation(this.IMAGES_JUMP.slice(3, 4));
     }
 
     playJumpDown() {
-        let jumpDownImages = this.IMAGES_JUMP.slice(4);
-        this.playAnimation(jumpDownImages);
+        this.playAnimation(this.IMAGES_JUMP.slice(4));
     }
 
     hit(damage = 40) {
-        if (this.isHurt) return;
+        if (this.isHurt || this.isDead()) return;
         this.LP -= damage;
         if (this.LP < 0) this.LP = 0;
         this.hurt();
@@ -184,24 +164,20 @@ class characterPepe extends MovableObject {
     hurt() {
         if (this.isHurt) return;
         this.isHurt = true;
-        this.lastHurtTime = Date.now();
-        this.currentImage = 0;
-        setTimeout(() => {
-            this.isHurt = false;
-            if (this.isDead()) {
-                this.die();
-            }
-        }, this.hurtTimeout);
+        setTimeout(() => { this.isHurt = false; if (this.isDead()) this.die(); }, this.hurtTimeout);
     }
 
     die() {
         if (this.isDeadFalling) return;
         this.isDeadFalling = true;
+        clearInterval(this.deathInterval);
+        this.deathImageIndex = 0;
+        this.deathInterval = setInterval(() => {
+            this.y += this.deathFallSpeed;
+            if (this.deathImageIndex < this.IMAGES_PEPE_DIES.length) {
+                this.img = this.imageCache[this.IMAGES_PEPE_DIES[this.deathImageIndex]];
+                this.deathImageIndex++;
+            }
+        }, 100);
     }
-
-    isJumpingOn(enemy) {
-        return this.speedY < 0 &&
-            this.y + this.height <= enemy.y + enemy.height / 2;
-    }
-
 }

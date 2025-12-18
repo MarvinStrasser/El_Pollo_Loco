@@ -195,6 +195,10 @@ class World {
             this.keyboard.N = false;
         }
     }
+    
+    activateEnemies() {
+        this.level.enemies.forEach(e => e.active = true);
+    }
 
     checkBossTrigger() {
         if (!this.boss) return;

@@ -38,7 +38,7 @@ class MovableObject extends drawableObject {
 
     isColliding(mo) {
         const hitboxX = this.x + 30;
-        const hitboxY = this.y + 40;
+        const hitboxY = this.y + 80;
         const hitboxW = this.width - 60;
         const hitboxH = this.height - 60;
         return (
