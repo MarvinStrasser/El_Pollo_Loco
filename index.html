@@ -28,13 +28,61 @@
 
 <body onload="init()">
 
-    <h1>El pollo loco</h1>
+    <div id="loadingScreen">
+        <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Loading Screen">
+    </div>
 
-    <canvas id="gameCanvas" width="720" height="480">
+    <div id="mainMenu" class="hidden">
+        <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
 
-    </canvas>
+        <div class="menu-buttons">
+            <button class="btn" onclick="startGame()">Start</button>
+            <button class="btn" onclick="openControls()">Steuerung</button>
+            <button class="btn" onclick="toggleAudio()">Audio</button>
+        </div>
+    </div>
 
+    <div id="controlsMenu" class="hidden">
+        <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
 
+        <div class="controls-content">
+            <div class="controls-text">
+                <h2>Spielerklärung</h2>
+                <p>
+                    Du bist Pepe und musst die Hühner besiegen!<br><br>
+                    Deine Aufgabe ist es so viele Münzen zu sammeln wie du kannst.
+                    Auf deinem Weg findest du deinen geliebten Tabasco,
+                    der brennt wie Feuer.<br><br>
+                    Also Vorsicht, dass du ihn nicht auf jemanden wirfst!
+                </p>
+            </div>
+
+            <div class="controls-keys">
+                <div class="control-row">
+                    <img src="./img/9_intro_outro_screens/start/controls_walk.png" alt="" class="control_img">
+                    <div class="key-text">Gehen</div>
+                </div>
+
+                <div class="control-row">
+                    <img src="./img/9_intro_outro_screens/start/controls_jump.png" alt="" class="control_img">
+                    <div class="key-text">Springen</div>
+                </div>
+
+                <div class="control-row">
+                    <img src="./img/9_intro_outro_screens/start/controls_throw.png" alt="" class="control_img">
+                    <div class="key-text">Werfen</div>
+                </div>
+
+                <div class="back">
+                    <button class="btn" onclick="backToMenu()">Zurück</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="720" height="480"></canvas>
+
+</body>
 </body>
 
 </html>

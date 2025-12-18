@@ -1,9 +1,170 @@
-body{
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: black;
+}
+
+/* CANVAS */
+#gameCanvas {
+    display: block;
+    background: black;
+}
+
+/* LOADING SCREEN */
+#loadingScreen {
+    position: absolute;
+    width: 720px;
+    height: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* LOADING IMAGE */
+#loadingScreen img {
+    width: 100%;
+    height: 100%;
+    object-fit: fit;
+}
+
+.hidden {
+    display: none;
+}
+
+/* MAIN MENU */
+#mainMenu {
+    position: absolute;
+    width: 720px;
+    height: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.menu-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    /* 👈 Hintergrund */
+}
+
+.menu-buttons {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 2;
+    width: 200px;
+}
+
+.btn {
+    width: 100%;
+    height: 50px;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    background-image: url("./img/9_intro_outro_screens/start/main_menu_buttons.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.15);
+}
+
+#controlsMenu {
+    position: absolute;
+    width: 720px;
+    height: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* CONTENT WRAPPER */
+.controls-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    height: 100%;
+    padding: 40px;
+    box-sizing: border-box;
+    gap: 40px;
+}
+
+/* LEFT TEXT BOX */
+.controls-text {
+    width: 50%;
+    background: rgba(200, 200, 200, 0.65);
+    padding: 20px;
+    box-sizing: border-box;
+    font-size: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-canvas{
-    background-color: black;
+.controls-text h2 {
+    margin-top: 0;
+    text-decoration: underline;
+    font-size: 32px;
+}
+
+/* RIGHT SIDE CONTROLS */
+.controls-keys {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 25px;
+}
+
+/* SINGLE ROW */
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* CONTROL IMAGE */
+.control_img {
+    width: 90px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TEXT BOX */
+.key-text {
+    width: 160px;
+    height: 50px;
+    border: none;
+    background-image: url("./img/9_intro_outro_screens/start/main_menu_buttons.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+}
+
+p {
+    font-size: 21px;
+    margin: 0;
 }
