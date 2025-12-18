@@ -1,4 +1,8 @@
 class statusBar extends drawableObject {
+    isBlinking = false;
+    blinkInterval = null;
+    blinkState = false;
+    lastPercentage = null;
     IMAGES_HEALTHBAR = [
         './img/7_statusbars/1_statusbar/2_statusbar_health/green/0.png',
         './img/7_statusbars/1_statusbar/2_statusbar_health/green/20.png',
@@ -62,17 +66,45 @@ class statusBar extends drawableObject {
     }
 
     setPercentage(percentage) {
-        this.percentage = Math.max(0, Math.min(100, percentage));
-        let path = this.images[this.resolveImageIndex()];
-        this.img = this.imageCache[path];
+        if (percentage === this.lastPercentage) return;
+        this.lastPercentage = percentage;
+        this.percentage = percentage;
+        if (this.type === 'health' && percentage > 0 && percentage <= 20) {
+            this.startBlink();
+        } else {
+            this.stopBlink();
+            this.img = this.imageCache[this.images[this.resolveImageIndex()]];
+        }
     }
 
     resolveImageIndex() {
         if (this.percentage == 100) return 5;
-        if (this.percentage > 80) return 4;
-        if (this.percentage > 60) return 3;
-        if (this.percentage > 40) return 2;
-        if (this.percentage > 20) return 1;
+        if (this.percentage >= 80) return 4;
+        if (this.percentage >= 60) return 3;
+        if (this.percentage >= 40) return 2;
+        if (this.percentage >= 20) return 1;
         return 0;
     }
+
+startBlink() {
+    if (this.type !== 'health' || this.isBlinking) return;
+    this.isBlinking = true;
+    this.blinkInterval = setInterval(() => {
+        this.blinkState = !this.blinkState;
+        if (this.blinkState) {
+            this.img = this.imageCache[this.images[0]];
+        } else {
+            this.img = this.imageCache[this.images[1]];
+        }
+    }, 300);
+}
+
+    stopBlink() {
+        if (!this.isBlinking) return;
+        this.isBlinking = false;
+        clearInterval(this.blinkInterval);
+        this.blinkInterval = null;
+        this.blinkState = false;
+    }
+
 }

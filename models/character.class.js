@@ -8,6 +8,13 @@ class characterPepe extends MovableObject {
     coins = 0;
     bottles = 0;
     lastHit = 0;
+    LP = 100;
+    isHurt = false;
+    hurtTimeout = 100;
+    lastHurtTime = 0;
+    isDeadFalling = false;
+    currentImage = 0;
+    world;
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
         './img/2_character_pepe/2_walk/W-22.png',
@@ -72,13 +79,6 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-57.png',
     ];
 
-    LP = 100;
-    isHurt = false;
-    hurtTimeout = 100;
-    lastHurtTime = 0;
-    isDeadFalling = false;
-    currentImage = 0;
-    world;
 
     constructor() {
         super().loadImage('./img/2_character_pepe/2_walk/W-21.png');
@@ -151,7 +151,6 @@ class characterPepe extends MovableObject {
         if (this.isLongIdle()) return this.playAnimation(this.IMAGES_LONG_IDLE);
         this.playAnimation(this.IMAGES_IDLE);
     }
-
 
     isMoving() {
         return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;

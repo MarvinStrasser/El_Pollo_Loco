@@ -32,12 +32,14 @@ class Endboss extends MovableObject {
     hit() {
         if (this.dead) return;
         this.energy -= 20;
-        if (this.energy <= 0) this.die();
+        if (this.energy <= 0) {
+            this.energy = 0;
+            this.die();
+        }
     }
 
     die() {
         this.dead = true;
-        this.energy = 0;
         clearInterval(this.animationInterval);
     }
 }
