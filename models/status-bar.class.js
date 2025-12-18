@@ -26,32 +26,39 @@ class statusBar extends drawableObject {
         './img/7_statusbars/1_statusbar/3_statusbar_bottle/green/100.png',
     ];
 
+    IMAGES_BOSS_HEALTHBAR = [
+        './img/7_statusbars/2_statusbar_endboss/orange/orange0.png',
+        './img/7_statusbars/2_statusbar_endboss/orange/orange20.png',
+        './img/7_statusbars/2_statusbar_endboss/orange/orange40.png',
+        './img/7_statusbars/2_statusbar_endboss/orange/orange60.png',
+        './img/7_statusbars/2_statusbar_endboss/orange/orange80.png',
+        './img/7_statusbars/2_statusbar_endboss/orange/orange100.png',
+    ];
+
     constructor(type) {
         super();
         this.type = type;
-        this.width = 150;
         this.height = 50;
+        if (type === 'boss') {
+            this.width = 400;
+        } else {
+            this.width = 150;
+        }
         this.initByType(type);
         this.loadImages(this.images);
         this.setPercentage(0);
     }
 
     initByType(type) {
-        if (type === 'health') {
-            this.images = this.IMAGES_HEALTHBAR;
-            this.x = 20;
-            this.y = 0;
-        }
-        if (type === 'coins') {
-            this.images = this.IMAGES_COINS;
-            this.x = 20;
-            this.y = 50;
-        }
-        if (type === 'bottles') {
-            this.images = this.IMAGES_BOTTLES;
-            this.x = 20;
-            this.y = 100;
-        }
+        const TYPES = {
+            health: { images: this.IMAGES_HEALTHBAR, x: 20, y: 0 },
+            coins: { images: this.IMAGES_COINS, x: 20, y: 50 },
+            bottles: { images: this.IMAGES_BOTTLES, x: 20, y: 100 },
+            boss: { images: this.IMAGES_BOSS_HEALTHBAR, x: 0, y: 0 }
+        };
+
+        const config = TYPES[type];
+        Object.assign(this, config);
     }
 
     setPercentage(percentage) {

@@ -9,6 +9,9 @@ class World {
     statusBar = new statusBar('health');
     coinBar = new statusBar('coins');
     bottleBar = new statusBar('bottles');
+    bossBar = new statusBar('boss');
+    boss = null;
+    bossBarVisible = false;
     throwableObjects = [];
 
     constructor(canvas, keyboard) {
@@ -25,15 +28,21 @@ class World {
 
     setWorld() {
         this.character.world = this;
+        this.boss = this.level.boss;
     }
 
     checkCollisions() {
         this.level.enemies.forEach((enemy) => {
+            if (enemy instanceof Endboss) return;
             if (!enemy.dead && this.character.isColliding(enemy)) {
                 this.character.hit(5);
                 this.statusBar.setPercentage(this.character.LP);
             }
         });
+        if (this.bossBarVisible && this.boss && !this.boss.dead && this.character.isColliding(this.boss)) {
+            this.character.hit(5);
+            this.statusBar.setPercentage(this.character.LP);
+        }
         this.collectItems(this.level.coins, () => {
             this.character.coins += 20;
             this.coinBar.setPercentage(this.character.coins);
@@ -48,13 +57,15 @@ class World {
         this.throwableObjects.forEach(bottle => {
             if (bottle.hasSplashed) return;
             this.level.enemies.forEach(enemy => {
+                if (enemy instanceof Endboss) return;
                 if (bottle.isColliding(enemy)) {
                     enemy.hit();
                     bottle.splash();
                 }
             });
-            if (this.level.boss && bottle.isColliding(this.level.boss)) {
-                this.level.boss.hit();
+            if (this.boss && bottle.isColliding(this.boss)) {
+                this.boss.hit();
+                this.bossBar.setPercentage(this.boss.energy);
                 bottle.splash();
             }
         });
@@ -65,6 +76,7 @@ class World {
         this.checkCollisions();
         this.checkThrowObjects();
         this.checkBottleCollisions();
+        this.checkBossTrigger();
         this.level.enemies = this.level.enemies.filter(e => !e.remove);
         this.drawWorld();
         this.drawUI();
@@ -83,7 +95,12 @@ class World {
         this.addObjectsToMap(this.level.bottles);
         this.addObjectsToMap(this.throwableObjects);
         this.addToMap(this.character);
-        this.addObjectsToMap(this.level.enemies);
+        this.level.enemies
+            .filter(e => !(e instanceof Endboss))
+            .forEach(e => this.addToMap(e));
+        if (this.boss) {
+            this.addToMap(this.boss);
+        }
         this.ctx.translate(-this.camera_x, 0);
     }
 
@@ -91,6 +108,9 @@ class World {
         this.addToMap(this.statusBar);
         this.addToMap(this.coinBar);
         this.addToMap(this.bottleBar);
+        if (this.bossBarVisible) {
+            this.addToMap(this.bossBar);
+        }
     }
 
     addObjectsToMap(objects) {
@@ -144,4 +164,18 @@ class World {
             this.keyboard.N = false;
         }
     }
+
+    checkBossTrigger() {
+        if (!this.boss) return;
+        const triggerX = this.boss.x - 600;
+        if (this.character.x > triggerX && !this.bossBarVisible) {
+            this.bossBarVisible = true;
+            this.bossBar.width = 300;
+            this.bossBar.height = 60;
+            this.bossBar.x = (this.canvas.width / 2) - (this.bossBar.width / 2);
+            this.bossBar.y = 10;
+            this.bossBar.setPercentage(this.boss.energy);
+        }
+    }
+
 }
