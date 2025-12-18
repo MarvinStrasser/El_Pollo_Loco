@@ -22,28 +22,52 @@ class ThrowableObject extends MovableObject {
         super();
         this.loadImages(this.IMAGES_BOTTLE_THROW);
         this.img = this.imageCache[this.IMAGES_BOTTLE_THROW[0]];
-
+        this.loadImages(this.IMAGES_BOTTLE_SPLASH);
+        this.gravityInterval = null;
+        this.throwInterval = null;
+        this.markedForRemoval = false;
+        this.otherDirection = false;
         this.x = x;
         this.y = y;
         this.height = 100;
         this.width = 50;
-
-        this.speedX = 10;   // 👉 HIER
+        this.speedX = 10;
     }
 
     applyGravity() {
-        setInterval(() => {
+        this.gravityInterval = setInterval(() => {
             this.y -= this.speedY;
             this.speedY -= this.acceleration;
+            if (this.y >= 360) {
+                this.y = 360;
+                this.splash();
+            }
         }, 1000 / 25);
     }
 
-    throw() {
+    throw(otherDirection = false) {
+        this.otherDirection = otherDirection;
         this.speedY = 20;
+        this.speedX = this.otherDirection ? -10 : 10;
         this.applyGravity();
-        setInterval(() => {
-            this.x += 10;
+        this.throwInterval = setInterval(() => {
+            this.x += this.speedX;
             this.playAnimation(this.IMAGES_BOTTLE_THROW);
         }, 25);
+    }
+
+    splash() {
+        if (this.hasSplashed) return;
+        this.hasSplashed = true;
+        this.speedX = 0;
+        this.speedY = 0;
+        clearInterval(this.throwInterval);
+        clearInterval(this.gravityInterval);
+        this.playAnimation(this.IMAGES_BOTTLE_SPLASH);
+        setTimeout(() => {
+            this.markedForRemoval = true;
+            this.width = 0;
+            this.height = 0;
+        }, 50);
     }
 }

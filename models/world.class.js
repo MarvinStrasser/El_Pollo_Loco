@@ -29,7 +29,7 @@ class World {
 
     checkCollisions() {
         this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
+            if (!enemy.dead && this.character.isColliding(enemy)) {
                 this.character.hit(5);
                 this.statusBar.setPercentage(this.character.LP);
             }
@@ -42,13 +42,30 @@ class World {
             this.character.bottles += 20;
             this.bottleBar.setPercentage(this.character.bottles);
         });
-        
+    }
+
+    checkBottleCollisions() {
+        this.throwableObjects.forEach(bottle => {
+            if (bottle.hasSplashed) return;
+            this.level.enemies.forEach(enemy => {
+                if (bottle.isColliding(enemy)) {
+                    enemy.hit();
+                    bottle.splash();
+                }
+            });
+            if (this.level.boss && bottle.isColliding(this.level.boss)) {
+                this.level.boss.hit();
+                bottle.splash();
+            }
+        });
     }
 
     draw() {
         this.clearCanvas();
         this.checkCollisions();
         this.checkThrowObjects();
+        this.checkBottleCollisions();
+        this.level.enemies = this.level.enemies.filter(e => !e.remove);
         this.drawWorld();
         this.drawUI();
         requestAnimationFrame(() => this.draw());
@@ -120,7 +137,7 @@ class World {
                 this.character.x + 50,
                 this.character.y + 100
             );
-            bottle.throw();
+            bottle.throw(this.character.otherDirection);
             this.throwableObjects.push(bottle);
             this.character.bottles -= 20;
             this.bottleBar.setPercentage(this.character.bottles);
