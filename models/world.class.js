@@ -32,17 +32,48 @@ class World {
     }
 
     checkCollisions() {
+        this.checkEnemyCollisions();
+        this.checkBossCollision();
+        this.checkItemCollisions();
+    }
+
+    checkEnemyCollisions() {
         this.level.enemies.forEach((enemy) => {
-            if (enemy instanceof Endboss) return;
-            if (!enemy.dead && this.character.isColliding(enemy)) {
+            if (enemy instanceof Endboss || enemy.dead) return;
+            if (!this.character.isColliding(enemy)) return;
+            if (this.isJumpKill(enemy)) {
+                enemy.die();
+                this.character.speedY = 15;
+            } else {
                 this.character.hit(5);
                 this.statusBar.setPercentage(this.character.LP);
             }
         });
-        if (this.bossBarVisible && this.boss && !this.boss.dead && this.character.isColliding(this.boss)) {
-            this.character.hit(5);
-            this.statusBar.setPercentage(this.character.LP);
+    }
+
+    isJumpKill(enemy) {
+        return this.character.speedY < 0 &&
+            this.character.y + this.character.height <= enemy.y + enemy.height / 2;
+    }
+
+    checkBossCollision() {
+        if (!this.bossBarVisible || !this.boss || this.boss.dead) return;
+        const distance = Math.abs(this.character.x - this.boss.x);
+        if (distance < 100 && !this.boss.isAttacking) {
+            this.boss.startAttack();
         }
+        if (
+            this.boss.isAttacking &&
+            !this.boss.hasDealtDamage &&
+            this.character.isColliding(this.boss)
+        ) {
+            this.character.hit(this.boss.damage);
+            this.statusBar.setPercentage(this.character.LP);
+            this.boss.hasDealtDamage = true;
+        }
+    }
+
+    checkItemCollisions() {
         this.collectItems(this.level.coins, () => {
             this.character.coins = Math.min(this.character.coins + 20, 100);
             this.coinBar.setPercentage(this.character.coins);
@@ -167,7 +198,7 @@ class World {
 
     checkBossTrigger() {
         if (!this.boss) return;
-        const triggerX = this.boss.x - 600;
+        const triggerX = this.boss.x - 300;
         if (this.character.x > triggerX && !this.bossBarVisible) {
             this.bossBarVisible = true;
             this.bossBar.width = 300;
@@ -175,6 +206,7 @@ class World {
             this.bossBar.x = (this.canvas.width / 2) - (this.bossBar.width / 2);
             this.bossBar.y = 10;
             this.bossBar.setPercentage(this.boss.energy);
+            this.boss.startWalking();
         }
     }
 

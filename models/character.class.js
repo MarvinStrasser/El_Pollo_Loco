@@ -176,23 +176,18 @@ class characterPepe extends MovableObject {
 
     hit(damage = 40) {
         if (this.isHurt) return;
-
         this.LP -= damage;
         if (this.LP < 0) this.LP = 0;
-
         this.hurt();
     }
 
     hurt() {
         if (this.isHurt) return;
-
         this.isHurt = true;
         this.lastHurtTime = Date.now();
         this.currentImage = 0;
-
         setTimeout(() => {
             this.isHurt = false;
-
             if (this.isDead()) {
                 this.die();
             }
@@ -202,6 +197,11 @@ class characterPepe extends MovableObject {
     die() {
         if (this.isDeadFalling) return;
         this.isDeadFalling = true;
+    }
+
+    isJumpingOn(enemy) {
+        return this.speedY < 0 &&
+            this.y + this.height <= enemy.y + enemy.height / 2;
     }
 
 }
