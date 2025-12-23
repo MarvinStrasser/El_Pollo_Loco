@@ -234,6 +234,7 @@ class characterPepe extends MovableObject {
     }
     die() {
         if (this.isDeadFalling || gameOver) return;
+        stopBossSound();
         gameOver = true;
         this.stopSnoringIfNeeded();
         stopAllMusic();

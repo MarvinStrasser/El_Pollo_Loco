@@ -194,6 +194,13 @@ function playBossSound() {
 }
 
 function stopBossSound() {
+    if (bossSound) {
+        bossSound.pause();
+        bossSound.currentTime = 0;
+    }
+}
+
+function stopBossSound() {
     if (!bossSound) return;
     bossSound.pause();
     bossSound.currentTime = 0;
