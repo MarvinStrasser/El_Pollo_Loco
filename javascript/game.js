@@ -10,7 +10,7 @@ function init() {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainMenu = document.getElementById('mainMenu');
 
-    setTimeout(() => {
+    initTimeout = setTimeout(() => {
         loadingScreen.style.display = 'none';
 
         if (sessionStorage.getItem('autoStartGame') === 'true') {
@@ -18,17 +18,31 @@ function init() {
             startGame();
         } else {
             mainMenu.classList.remove('hidden');
-            menuVisible = true;
             currentScreen = "menu";
         }
     }, 2500);
 }
 
 function startGame() {
-    document.getElementById('mainMenu').classList.add('hidden');
+    // 🔥 DAS IST DER ENTSCHEIDENDE FIX
+    if (initTimeout) {
+        clearTimeout(initTimeout);
+        initTimeout = null;
+    }
+
+    const mainMenu = document.getElementById('mainMenu');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const canvas = document.getElementById('gameCanvas');
+
+    mainMenu.classList.add('hidden');
+    loadingScreen.style.display = 'none';
+    canvas.style.display = 'block';
+
+    currentScreen = "game";
+
     stopMenuMusic();
     playGameMusic();
-    canvas = document.getElementById('gameCanvas');
+
     world = new World(canvas, keyboard);
 }
 
@@ -41,8 +55,25 @@ function showEndOptionsAfterDelay() {
 }
 
 function restartGame() {
-    sessionStorage.setItem('AUTO_START', '1');
-    location.reload();
+    // 🔒 Endscreens AUS
+    document.getElementById('winScreen')?.classList.add('hidden');
+    document.getElementById('loseScreen')?.classList.add('hidden');
+    document.getElementById('endOptionsScreen')?.classList.add('hidden');
+
+    // 🔄 Game-State reset
+    gameOver = false;
+    allowWinScreen = false;
+    allowLoseScreen = false;
+
+    // 🎮 Neues Spiel starten (ohne Reload)
+    const canvas = document.getElementById('gameCanvas');
+    world = new World(canvas, keyboard);
+
+    currentScreen = "game";
+
+    // 🎵 Musik
+    stopAllMusic();
+    playGameMusic();
 }
 
 function goToMenu() {

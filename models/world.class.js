@@ -1,6 +1,5 @@
 class World {
     character = new characterPepe();
-    level = level_1;
     canvas;
     ctx;
     keyboard;
@@ -18,9 +17,13 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
+
+        this.level = createLevel1(); // ✅ JEDES MAL NEU
+
         this.draw();
         this.setWorld();
         this.checkCollisions();
+
         this.statusBar.setPercentage(100);
         this.coinBar.setPercentage(0);
         this.bottleBar.setPercentage(0);

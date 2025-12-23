@@ -92,17 +92,22 @@ function initMenuSounds() {
 
 function unlockAudio() {
     if (audioUnlocked) return;
-    if (currentScreen !== "menu" && currentScreen !== "game") return;
+
     audioUnlocked = true;
+    sessionStorage.setItem('audioUnlocked', 'true');
+
     menuMusic.muted = true;
     menuMusic.play().then(() => {
         menuMusic.pause();
         menuMusic.currentTime = 0;
         menuMusic.muted = false;
-        if (audioEnabled && currentScreen === "menu") {
-            playMenuMusic();
-        }
-    }).catch(() => { });
+
+        if (!audioEnabled) return;
+
+        // 🔑 DAS IST DER FIX
+        if (currentScreen === "menu") playMenuMusic();
+        if (currentScreen === "game") playGameMusic();
+    }).catch(() => {});
 }
 
 function playMenuMusic() {
