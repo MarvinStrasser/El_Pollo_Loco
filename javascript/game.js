@@ -9,6 +9,7 @@ let allowLoseScreen = false;
 function init() {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainMenu = document.getElementById('mainMenu');
+    document.getElementById('impressumOverlay').classList.add('hidden')
 
     initTimeout = setTimeout(() => {
         loadingScreen.style.display = 'none';
@@ -24,25 +25,19 @@ function init() {
 }
 
 function startGame() {
-    // 🔥 DAS IST DER ENTSCHEIDENDE FIX
     if (initTimeout) {
         clearTimeout(initTimeout);
         initTimeout = null;
     }
-
     const mainMenu = document.getElementById('mainMenu');
     const loadingScreen = document.getElementById('loadingScreen');
     const canvas = document.getElementById('gameCanvas');
-
     mainMenu.classList.add('hidden');
     loadingScreen.style.display = 'none';
     canvas.style.display = 'block';
-
     currentScreen = "game";
-
     stopMenuMusic();
     playGameMusic();
-
     world = new World(canvas, keyboard);
 }
 
@@ -55,12 +50,9 @@ function showEndOptionsAfterDelay() {
 }
 
 function restartGame() {
-    // 🔒 Endscreens AUS
     document.getElementById('winScreen')?.classList.add('hidden');
     document.getElementById('loseScreen')?.classList.add('hidden');
     document.getElementById('endOptionsScreen')?.classList.add('hidden');
-
-    // 🔄 Game-State reset
     gameOver = false;
     allowWinScreen = false;
     allowLoseScreen = false;
@@ -104,6 +96,16 @@ function backToMenu() {
     document.getElementById('mainMenu').classList.remove('hidden');
     stopGameMusic();
     playMenuMusic();
+}
+
+function openImpressum() {
+    document.getElementById('mainMenu').classList.add('hidden');
+    document.getElementById('impressumOverlay').classList.remove('hidden');
+}
+
+function closeImpressum() {
+    document.getElementById('impressumOverlay').classList.add('hidden');
+    document.getElementById('mainMenu').classList.remove('hidden');
 }
 
 window.addEventListener('click', unlockAudio);

@@ -4,13 +4,20 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: black;
+    background-image: url(./img/5_background/index_background.png);
+    background-position: center;
+    background-size: cover;
 }
 
 /* CANVAS */
 #gameCanvas {
     display: block;
-    background: black;
+    margin: 0 auto;
+    border: 8px solid #6b3e1e;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
+        inset 0 0 10px rgba(255, 200, 120, 0.2);
+    background-color: black;
 }
 
 /* LOADING SCREEN */
@@ -287,4 +294,44 @@ p {
 
 .hidden {
     display: none;
+}
+
+#impressumOverlay {
+    position: absolute;
+    width: 720px;
+    height: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    justify-content: end;
+}
+
+.impressum-content {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 2;
+    color: black;
+    padding: 40px;
+    width: 360px;
+    background: rgba(200, 200, 200, 0.80);
+    height: 480px;
+    box-sizing: border-box;
+}
+
+.impressum-content h2 {
+    margin-bottom: 20px;
+}
+
+.impressum-content a {
+    color: #1591c7;
+    text-decoration: none;
+}
+
+.impressum-content a:hover {
+    text-decoration: underline;
+}
+
+.back-btn {
+    margin-top: 30px;
 }
