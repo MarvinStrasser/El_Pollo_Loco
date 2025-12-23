@@ -129,25 +129,25 @@ class characterPepe extends MovableObject {
         setInterval(() => this.playCurrentAnimation(), 120);
     }
 
-playCurrentAnimation() {
-    if (gameOver || allowWinScreen || allowLoseScreen) {
-        this.stopSnoringIfNeeded();
-        return;
-    }
-    if (this.isDead()) return;
-    if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
-    if (this.speedY > 0) return this.playJumpUp();
-    if (this.aboveGround()) return this.playJumpDown();
-    if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
-    if (this.isLongIdle()) {
-        if (!this.isSnoring) {
-            this.isSnoring = true;
-            playSnoringSound();
+    playCurrentAnimation() {
+        if (gameOver || allowWinScreen || allowLoseScreen) {
+            this.stopSnoringIfNeeded();
+            return;
         }
-        return this.playAnimation(this.IMAGES_LONG_IDLE);
+        if (this.isDead()) return;
+        if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
+        if (this.speedY > 0) return this.playJumpUp();
+        if (this.aboveGround()) return this.playJumpDown();
+        if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
+        if (this.isLongIdle()) {
+            if (!this.isSnoring) {
+                this.isSnoring = true;
+                playSnoringSound();
+            }
+            return this.playAnimation(this.IMAGES_LONG_IDLE);
+        }
+        this.playAnimation(this.IMAGES_IDLE);
     }
-    this.playAnimation(this.IMAGES_IDLE);
-}
 
     stopSnoringIfNeeded() {
         if (this.isSnoring) {
@@ -226,23 +226,20 @@ playCurrentAnimation() {
         if (this.isHurt) return;
         this.stopSnoringIfNeeded();
         this.isHurt = true;
+        playHurtSound();
         setTimeout(() => {
             this.isHurt = false;
             if (this.isDead()) this.die();
         }, this.hurtTimeout);
     }
-
     die() {
         if (this.isDeadFalling || gameOver) return;
         gameOver = true;
-
         this.stopSnoringIfNeeded();
         stopAllMusic();
-
         this.isDeadFalling = true;
         clearInterval(this.deathInterval);
         this.deathImageIndex = 0;
-
         this.deathInterval = setInterval(() => {
             this.y += this.deathFallSpeed;
             if (this.deathImageIndex < this.IMAGES_PEPE_DIES.length) {
@@ -250,14 +247,14 @@ playCurrentAnimation() {
                 this.deathImageIndex++;
             }
         }, 100);
-
-        // 🔊 Death/Lose Sound passend zur Animation
         playLoseMusic();
-
-        // 🖥️ Lose-Screen erst später erlauben
         setTimeout(() => {
-            allowLoseScreen = true;
-            document.getElementById('loseScreen').style.display = 'block';
-        }, 1200); // ⬅ feinjustierbar
+            document.getElementById('loseScreen').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('loseScreen').classList.add('hidden');
+                document.getElementById('endOptionsScreen').classList.remove('hidden');
+            }, 5000);
+
+        }, 1200);
     }
 }

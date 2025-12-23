@@ -81,8 +81,17 @@ class Endboss extends MovableObject {
     }
 
     updateMovement() {
-        if (this.state === 'walking') {
+        if (this.state !== 'walking' || this.dead || !this.world) return;
+
+        const pepe = this.world.character;
+        if (!pepe) return;
+
+        if (pepe.x < this.x) {
             this.x -= this.speed;
+            this.otherDirection = false;
+        } else {
+            this.x += this.speed;
+            this.otherDirection = true;
         }
     }
 
@@ -140,17 +149,23 @@ class Endboss extends MovableObject {
         this.isDying = true;
 
         clearInterval(this.animationInterval);
-        let i = 0;
 
+        let i = 0;
         this.animationInterval = setInterval(() => {
             if (i >= this.IMAGES_BOSS_DEAD.length) {
                 clearInterval(this.animationInterval);
+
                 playBossDeathSound();
 
                 setTimeout(() => {
-                    allowWinScreen = true;
-                    document.getElementById('winScreen').style.display = 'block';
+                    document.getElementById('winScreen').classList.remove('hidden');
                     playWinMusic();
+
+                    setTimeout(() => {
+                        document.getElementById('winScreen').classList.add('hidden');
+                        document.getElementById('endOptionsScreen').classList.remove('hidden');
+                    }, 5000);
+
                 }, 2000);
 
                 return;

@@ -12,9 +12,15 @@ function init() {
 
     setTimeout(() => {
         loadingScreen.style.display = 'none';
-        mainMenu.classList.remove('hidden');
-        menuVisible = true;
-        currentScreen = "menu";
+
+        if (sessionStorage.getItem('autoStartGame') === 'true') {
+            sessionStorage.removeItem('autoStartGame');
+            startGame();
+        } else {
+            mainMenu.classList.remove('hidden');
+            menuVisible = true;
+            currentScreen = "menu";
+        }
     }, 2500);
 }
 
@@ -24,6 +30,23 @@ function startGame() {
     playGameMusic();
     canvas = document.getElementById('gameCanvas');
     world = new World(canvas, keyboard);
+}
+
+function showEndOptionsAfterDelay() {
+    setTimeout(() => {
+        document.getElementById('winScreen').classList.add('hidden');
+        document.getElementById('loseScreen').classList.add('hidden');
+        document.getElementById('endOptionsScreen').classList.remove('hidden');
+    }, 5000);
+}
+
+function restartGame() {
+    sessionStorage.setItem('AUTO_START', '1');
+    location.reload();
+}
+
+function goToMenu() {
+    location.reload();
 }
 
 function openControls() {

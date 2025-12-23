@@ -18,6 +18,7 @@ let footsteps;
 let jumpSound;
 let winMusic;
 let loseMusic;
+let hurtSound;
 
 
 function initMenuSounds() {
@@ -60,6 +61,9 @@ function initMenuSounds() {
 
     jumpSound = new Audio('./audio/jump.mp3');
     jumpSound.volume = 0.6;
+
+    hurtSound = new Audio('./audio/hurt.mp3');
+    hurtSound.volume = 0.6;
 
     bossMusic = new Audio('./audio/boss_background_music.mp3');
     bossMusic.loop = true;
@@ -212,6 +216,12 @@ function stopFootsteps() {
     footsteps.currentTime = 0;
 }
 
+function playHurtSound() {
+    if (!audioEnabled) return;
+    hurtSound.currentTime = 0;
+    hurtSound.play();
+}
+
 function stopAllMusic() {
     stopMenuMusic();
     stopGameMusic();
@@ -231,13 +241,13 @@ function stopAllMusic() {
 function playWinMusic() {
     if (!audioEnabled || !audioUnlocked) return;
     stopAllMusic();
-    winMusic.play().catch(() => {});
+    winMusic.play().catch(() => { });
 }
 
 function playLoseMusic() {
     if (!audioEnabled || !audioUnlocked) return;
     stopAllMusic();
-    loseMusic.play().catch(() => {});
+    loseMusic.play().catch(() => { });
 }
 
 function toggleAudio() {
