@@ -77,10 +77,12 @@ class World {
         this.collectItems(this.level.coins, () => {
             this.character.coins = Math.min(this.character.coins + 20, 100);
             this.coinBar.setPercentage(this.character.coins);
+            playCoinSound();
         });
         this.collectItems(this.level.bottles, () => {
             this.character.bottles = Math.min(this.character.bottles + 20, 100);
             this.bottleBar.setPercentage(this.character.bottles);
+            playBottleSound();
         });
     }
 
@@ -195,7 +197,7 @@ class World {
             this.keyboard.N = false;
         }
     }
-    
+
     activateEnemies() {
         this.level.enemies.forEach(e => e.active = true);
     }
@@ -205,6 +207,8 @@ class World {
         const triggerX = this.boss.x - 300;
         if (this.character.x > triggerX && !this.bossBarVisible) {
             this.bossBarVisible = true;
+            playBossMusic();
+            playBossSound();
             this.bossBar.width = 300;
             this.bossBar.height = 60;
             this.bossBar.x = (this.canvas.width / 2) - (this.bossBar.width / 2);
@@ -213,5 +217,4 @@ class World {
             this.boss.startWalking();
         }
     }
-
 }

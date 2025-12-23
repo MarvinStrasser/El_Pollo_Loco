@@ -11,6 +11,7 @@ class Endboss extends MovableObject {
     attackDuration = 800;
     isDying = false;
     hasDealtDamage = false;
+    hasPlayedDeathSound = false;
     damage = 20;
 
     IMAGES_WALKING = [
@@ -127,17 +128,34 @@ class Endboss extends MovableObject {
     }
 
     die() {
-        if (this.dead) return;
+        if (this.dead || gameOver) return;
+        gameOver = true;
+
+        stopBossSound();
+        stopBossMusic();
+        stopAllMusic();
+
         this.dead = true;
         this.state = 'dead';
         this.isDying = true;
+
         clearInterval(this.animationInterval);
         let i = 0;
+
         this.animationInterval = setInterval(() => {
             if (i >= this.IMAGES_BOSS_DEAD.length) {
                 clearInterval(this.animationInterval);
+                playBossDeathSound();
+
+                setTimeout(() => {
+                    allowWinScreen = true;
+                    document.getElementById('winScreen').style.display = 'block';
+                    playWinMusic();
+                }, 2000);
+
                 return;
             }
+
             this.img = this.imageCache[this.IMAGES_BOSS_DEAD[i]];
             i++;
         }, 100);

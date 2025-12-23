@@ -38,8 +38,10 @@ class enemyChicken extends MovableObject {
     }
 
     die() {
+        if (this.dead) return;
         this.dead = true;
         this.speed = 0;
+        playChickenSplatSound();
         clearInterval(this.animationInterval);
         this.img = this.imageCache[this.IMAGES_DEAD[0]];
         setTimeout(() => this.remove = true, 5000);

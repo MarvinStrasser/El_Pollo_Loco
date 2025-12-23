@@ -15,6 +15,7 @@ class characterPepe extends MovableObject {
     deathImageIndex = 0;
     deathInterval = null;
     deathFallSpeed = 30;
+    isSnoring = false;
     world;
 
     IMAGES_WALKING = [
@@ -104,38 +105,81 @@ class characterPepe extends MovableObject {
                 this.hasMoved = true;
                 this.world.activateEnemies();
             }
-            if (this.isDead()) return;
+            if (this.isDead()) {
+                stopFootsteps();
+                return;
+            }
             if (this.world.keyboard.RIGHT) this.moveRight();
             if (this.world.keyboard.LEFT) this.moveLeft();
-            if (this.world.keyboard.UP) this.jump();
+            if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
+            this.handleFootsteps();
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
+    }
+
+    handleFootsteps() {
+        if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {
+            playFootsteps();
+        } else {
+            stopFootsteps();
+        }
     }
 
     handleAnimation() {
         setInterval(() => this.playCurrentAnimation(), 120);
     }
 
-    playCurrentAnimation() {
-        if (this.isDead()) return;
-        if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
-        if (this.speedY > 0) return this.playJumpUp();
-        if (this.aboveGround()) return this.playJumpDown();
-        if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
-        if (this.isLongIdle()) return this.playAnimation(this.IMAGES_LONG_IDLE);
-        this.playAnimation(this.IMAGES_IDLE);
+playCurrentAnimation() {
+    if (gameOver || allowWinScreen || allowLoseScreen) {
+        this.stopSnoringIfNeeded();
+        return;
+    }
+    if (this.isDead()) return;
+    if (this.isHurt) return this.playAnimation(this.IMAGES_PEPE_HURT);
+    if (this.speedY > 0) return this.playJumpUp();
+    if (this.aboveGround()) return this.playJumpDown();
+    if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
+    if (this.isLongIdle()) {
+        if (!this.isSnoring) {
+            this.isSnoring = true;
+            playSnoringSound();
+        }
+        return this.playAnimation(this.IMAGES_LONG_IDLE);
+    }
+    this.playAnimation(this.IMAGES_IDLE);
+}
+
+    stopSnoringIfNeeded() {
+        if (this.isSnoring) {
+            this.isSnoring = false;
+            stopSnoringSound();
+        }
     }
 
     moveRight() {
-        if (this.x < this.world.level.level_end_x) { this.x += this.speed; this.otherDirection = false; this.lastActionTime = Date.now(); }
+        if (this.x < this.world.level.level_end_x) {
+            this.stopSnoringIfNeeded();
+            this.x += this.speed;
+            this.otherDirection = false;
+            this.lastActionTime = Date.now();
+        }
     }
 
     moveLeft() {
-        if (this.x > 0) { this.x -= this.speed; this.otherDirection = true; this.lastActionTime = Date.now(); }
+        if (this.x > 0) {
+            this.stopSnoringIfNeeded();
+            this.x -= this.speed;
+            this.otherDirection = true;
+            this.lastActionTime = Date.now();
+        }
     }
 
     jump() {
-        if (!this.aboveGround()) { this.speedY = 25; this.lastActionTime = Date.now(); }
+        if (!this.aboveGround()) {
+            this.speedY = 20;
+            this.lastActionTime = Date.now();
+            playJumpSound();
+        }
     }
 
     isMoving() {
@@ -154,6 +198,23 @@ class characterPepe extends MovableObject {
         this.playAnimation(this.IMAGES_JUMP.slice(4));
     }
 
+    playFootsteps() {
+        if (!audioEnabled || !audioUnlocked) return;
+        if (!isWalkingSound) {
+            footsteps.currentTime = 0;
+            footsteps.loop = true;
+            footsteps.volume = 0.4;
+            footsteps.play();
+            isWalkingSound = true;
+        }
+    }
+
+    stopFootsteps() {
+        footsteps.pause();
+        footsteps.currentTime = 0;
+        isWalkingSound = false;
+    }
+
     hit(damage = 40) {
         if (this.isHurt || this.isDead()) return;
         this.LP -= damage;
@@ -163,15 +224,25 @@ class characterPepe extends MovableObject {
 
     hurt() {
         if (this.isHurt) return;
+        this.stopSnoringIfNeeded();
         this.isHurt = true;
-        setTimeout(() => { this.isHurt = false; if (this.isDead()) this.die(); }, this.hurtTimeout);
+        setTimeout(() => {
+            this.isHurt = false;
+            if (this.isDead()) this.die();
+        }, this.hurtTimeout);
     }
 
     die() {
-        if (this.isDeadFalling) return;
+        if (this.isDeadFalling || gameOver) return;
+        gameOver = true;
+
+        this.stopSnoringIfNeeded();
+        stopAllMusic();
+
         this.isDeadFalling = true;
         clearInterval(this.deathInterval);
         this.deathImageIndex = 0;
+
         this.deathInterval = setInterval(() => {
             this.y += this.deathFallSpeed;
             if (this.deathImageIndex < this.IMAGES_PEPE_DIES.length) {
@@ -179,5 +250,14 @@ class characterPepe extends MovableObject {
                 this.deathImageIndex++;
             }
         }, 100);
+
+        // 🔊 Death/Lose Sound passend zur Animation
+        playLoseMusic();
+
+        // 🖥️ Lose-Screen erst später erlauben
+        setTimeout(() => {
+            allowLoseScreen = true;
+            document.getElementById('loseScreen').style.display = 'block';
+        }, 1200); // ⬅ feinjustierbar
     }
 }

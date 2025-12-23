@@ -49,6 +49,7 @@ class ThrowableObject extends MovableObject {
         this.otherDirection = otherDirection;
         this.speedY = 20;
         this.speedX = this.otherDirection ? -10 : 10;
+        playBottleThrowSound();
         this.applyGravity();
         this.throwInterval = setInterval(() => {
             this.x += this.speedX;
@@ -64,6 +65,7 @@ class ThrowableObject extends MovableObject {
         clearInterval(this.throwInterval);
         clearInterval(this.gravityInterval);
         this.playAnimation(this.IMAGES_BOTTLE_SPLASH);
+        playBottleSplashSound();
         setTimeout(() => {
             this.markedForRemoval = true;
             this.width = 0;
