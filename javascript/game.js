@@ -76,22 +76,17 @@ function goToMenu() {
 }
 
 function openControls() {
-    currentScreen = "controls";
-    updateMobileControlsVisibility();
-
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('controlsMenu').classList.remove('hidden');
 }
 
 function openAudioMenu() {
-    currentScreen = "audio";
-    updateMobileControlsVisibility();
-
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('audioMenu').classList.remove('hidden');
-
     const checkbox = document.getElementById('audioCheckbox');
-    if (checkbox) checkbox.checked = audioEnabled;
+    if (checkbox) {
+        checkbox.checked = audioEnabled;
+    }
 }
 
 function backFromAudio() {
@@ -99,26 +94,19 @@ function backFromAudio() {
     document.getElementById('mainMenu').classList.remove('hidden');
 }
 
-function backFromAudio() {
-    currentScreen = "menu";
-    updateMobileControlsVisibility();
-
-    document.getElementById('audioMenu').classList.add('hidden');
+function backToMenu() {
+    document.getElementById('controlsMenu').classList.add('hidden');
     document.getElementById('mainMenu').classList.remove('hidden');
+    stopGameMusic();
+    playMenuMusic();
 }
 
 function openImpressum() {
-    currentScreen = "impressum";
-    updateMobileControlsVisibility();
-
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('impressumOverlay').classList.remove('hidden');
 }
 
 function closeImpressum() {
-    currentScreen = "menu";
-    updateMobileControlsVisibility();
-
     document.getElementById('impressumOverlay').classList.add('hidden');
     document.getElementById('mainMenu').classList.remove('hidden');
 }
@@ -128,7 +116,6 @@ window.addEventListener('click', unlockAudio);
 window.addEventListener('load', () => {
     initMenuSounds();
     init();
-    updateMobileControlsVisibility(); // 👈 Initial ausblenden
 });
 
 window.addEventListener('keydown', (e) => {
