@@ -8,6 +8,8 @@ class characterPepe extends MovableObject {
     coins = 0;
     bottles = 0;
     LP = 100;
+    throwOnCooldown = false;
+    throwCooldown = 600;
     hasMoved = false;
     isHurt = false;
     hurtTimeout = 100;
@@ -99,27 +101,70 @@ class characterPepe extends MovableObject {
         this.handleAnimation();
     }
 
-handleMovement() {
-    setInterval(() => {
-        if (gameOver) {
-            stopFootsteps();
-            return;
-        }
-        if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
-            this.hasMoved = true;
-            this.world.activateEnemies();
-        }
-        if (this.isDead()) {
-            stopFootsteps();
-            return;
-        }
-        if (this.world.keyboard.RIGHT) this.moveRight();
-        if (this.world.keyboard.LEFT) this.moveLeft();
-        if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
-        this.handleFootsteps();
-        this.world.camera_x = -this.x + 100;
-    }, 1000 / 60);
-}
+    handleMovement() {
+        setInterval(() => {
+            if (gameOver) {
+                stopFootsteps();
+                return;
+            }
+
+            if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
+                this.hasMoved = true;
+                this.world.activateEnemies();
+            }
+
+            if (this.isDead()) {
+                stopFootsteps();
+                return;
+            }
+
+            // Bewegung
+            if (this.world.keyboard.RIGHT) this.moveRight();
+            if (this.world.keyboard.LEFT) this.moveLeft();
+
+            // Springen
+            if (this.world.keyboard.UP && !this.aboveGround()) {
+                this.jump();
+            }
+
+            // Flasche werfen (hart reglementiert)
+            if (this.world.keyboard.N && this.canThrow()) {
+                this.throwBottle();
+            }
+
+            // Sound & Kamera
+            this.handleFootsteps();
+            this.world.camera_x = -this.x + 100;
+
+        }, 1000 / 60);
+    }
+
+    canThrow() {
+        if (this.throwOnCooldown) return false;
+        if (this.bottles <= 0) return false;
+        return true;
+    }
+
+    throwBottle() {
+        this.throwOnCooldown = true;
+
+        this.bottles--;
+        this.world.bottleBar.setPercentage(
+            (this.bottles / this.MAX_BOTTLES) * 100
+        );
+
+        const bottle = new ThrowableObject(
+            this.x + (this.otherDirection ? -20 : 50),
+            this.y + 100
+        );
+
+        bottle.throw(this.otherDirection);
+        this.world.throwableObjects.push(bottle);
+
+        setTimeout(() => {
+            this.throwOnCooldown = false;
+        }, this.throwCooldown);
+    }
 
     handleFootsteps() {
         if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {
