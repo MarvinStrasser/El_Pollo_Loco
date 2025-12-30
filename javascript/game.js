@@ -20,6 +20,7 @@ function init() {
         } else {
             mainMenu.classList.remove('hidden');
             currentScreen = "menu";
+            updateMobileControlsVisibility();
         }
     }, 2500);
     enforceLandscapeMode();
@@ -32,17 +33,31 @@ function startGame() {
     }
     const mainMenu = document.getElementById('mainMenu');
     const loadingScreen = document.getElementById('loadingScreen');
+    const gameLoading = document.getElementById('gameLoading');
     const canvas = document.getElementById('gameCanvas');
     mainMenu.classList.add('hidden');
     loadingScreen.style.display = 'none';
     canvas.style.display = 'block';
-    currentScreen = "game";
+    gameLoading.classList.remove('hidden');
     stopMenuMusic();
     playGameMusic();
-    world = new World(canvas, keyboard);
-    initMobileControls();
-    updateMobileControlsVisibility();
+    const MIN_LOADING_TIME = 700;
+    const startTime = Date.now();
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            world = new World(canvas, keyboard);
+            currentScreen = "game";
+            initMobileControls();
+            updateMobileControlsVisibility();
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+            setTimeout(() => {
+                gameLoading.classList.add('hidden');
+            }, remaining);
+        });
+    });
 }
+
 
 function showEndOptionsAfterDelay() {
     setTimeout(() => {
