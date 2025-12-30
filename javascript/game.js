@@ -132,3 +132,4 @@ window.addEventListener('keyup', (e) => {
     if (e.keyCode == 32) keyboard.SPACE = false;
     if (e.keyCode == 78) keyboard.N = false;
 });
+

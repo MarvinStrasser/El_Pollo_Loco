@@ -45,85 +45,92 @@
         </div>
     </div>
 
-    <div id="controlsMenu" class="hidden">
-        <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
+    <section class="controls">
+        <div id="controlsMenu" class="hidden">
+            <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
 
-        <div class="controls-content">
-            <div class="controls-text">
-                <h2>Spielerklärung</h2>
+            <div class="controls-content">
+                <div class="controls-text">
+                    <h2>Spielerklärung</h2>
+                    <p>
+                        Du bist Pepe und musst die Hühner besiegen!<br><br>
+                        Deine Aufgabe ist es so viele Münzen zu sammeln wie du kannst.
+                        Auf deinem Weg findest du deinen geliebten Tabasco,
+                        der brennt wie Feuer.<br><br>
+                        Also Vorsicht, dass du ihn nicht auf jemanden wirfst!
+                    </p>
+                </div>
+
+                <div class="controls-keys">
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_walk.png" alt="" class="control_img">
+                        <div class="key-text">Gehen</div>
+                    </div>
+
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_jump.png" alt="" class="control_img">
+                        <div class="key-text">Springen</div>
+                    </div>
+
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_throw.png" alt="" class="control_img">
+                        <div class="key-text">Werfen</div>
+                    </div>
+
+                    <div class="back">
+                        <button class="btn" onclick="playButtonSound(), backToMenu()">Zurück</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="audio">
+        <div id="audioMenu" class="hidden">
+            <img class="menu-bg" src="./img/9_intro_outro_screens/start/main_menu_background.png">
+
+            <div class="audio-content">
+                <div class="audio-text">
+                    <h2>Audio</h2>
+                    <p>Hier kannst du den Sound im Spiel aktivieren oder deaktivieren.</p>
+                </div>
+
+                <div class="audio-settings">
+                    <label class="audio-row">
+                        <input type="checkbox" id="audioCheckbox" onchange="toggleAudio()">
+                        <span class="audio-label">Sound aktiv</span>
+                    </label>
+
+                    <button class="btn" onclick="playButtonSound(), backFromAudio()">Zurück</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="impressum">
+        <div id="impressumOverlay" class="hidden">
+            <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
+
+            <div class="impressum-content">
+                <h2>Impressum</h2>
+
                 <p>
-                    Du bist Pepe und musst die Hühner besiegen!<br><br>
-                    Deine Aufgabe ist es so viele Münzen zu sammeln wie du kannst.
-                    Auf deinem Weg findest du deinen geliebten Tabasco,
-                    der brennt wie Feuer.<br><br>
-                    Also Vorsicht, dass du ihn nicht auf jemanden wirfst!
+                    Angaben gemäß <a href="https://www.gesetze-im-internet.de/ddg/__5.html">§ 5 TMG</a><br><br>
+
+                    <strong>Marvin Straßer</strong><br>
+                    Innerlohenerstraße 11<br>
+                    83324 Ruhpolding<br>
+                    Deutschland<br><br>
+
+                    <strong>Kontakt</strong><br>
+                    E-Mail: <a href="mailto:reibadatschie@web.de.de">reibadatschie@web.de.de</a>
                 </p>
-            </div>
 
-            <div class="controls-keys">
-                <div class="control-row">
-                    <img src="./img/9_intro_outro_screens/start/controls_walk.png" alt="" class="control_img">
-                    <div class="key-text">Gehen</div>
-                </div>
-
-                <div class="control-row">
-                    <img src="./img/9_intro_outro_screens/start/controls_jump.png" alt="" class="control_img">
-                    <div class="key-text">Springen</div>
-                </div>
-
-                <div class="control-row">
-                    <img src="./img/9_intro_outro_screens/start/controls_throw.png" alt="" class="control_img">
-                    <div class="key-text">Werfen</div>
-                </div>
-
-                <div class="back">
-                    <button class="btn" onclick="playButtonSound(), backToMenu()">Zurück</button>
-                </div>
+                <button class="btn back-btn" onclick="playButtonSound(), closeImpressum()">Zurück</button>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div id="audioMenu" class="hidden">
-        <img class="menu-bg" src="./img/9_intro_outro_screens/start/main_menu_background.png">
-
-        <div class="audio-content">
-            <div class="audio-text">
-                <h2>Audio</h2>
-                <p>Hier kannst du den Sound im Spiel aktivieren oder deaktivieren.</p>
-            </div>
-
-            <div class="audio-settings">
-                <label class="audio-row">
-                    <input type="checkbox" id="audioCheckbox" onchange="toggleAudio()">
-                    <span class="audio-label">Sound aktiv</span>
-                </label>
-
-                <button class="btn" onclick="playButtonSound(), backFromAudio()">Zurück</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="impressumOverlay" class="hidden">
-        <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
-
-        <div class="impressum-content">
-            <h2>Impressum</h2>
-
-            <p>
-                Angaben gemäß § 5 TMG<br><br>
-
-                <strong>Marvin Straßer</strong><br>
-                Innerlohenerstraße 11<br>
-                83324 Ruhpolding<br>
-                Deutschland<br><br>
-
-                <strong>Kontakt</strong><br>
-                E-Mail: <a href="mailto:reibadatschie@web.de.de">reibadatschie@web.de.de</a>
-            </p>
-
-            <button class="btn back-btn" onclick="playButtonSound(), closeImpressum()">Zurück</button>
-        </div>
-    </div>
 
     <canvas id="gameCanvas" width="720" height="480"></canvas>
 
