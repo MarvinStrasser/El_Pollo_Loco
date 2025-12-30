@@ -40,6 +40,8 @@ function startGame() {
     stopMenuMusic();
     playGameMusic();
     world = new World(canvas, keyboard);
+    initMobileControls();
+    updateMobileControlsVisibility();
 }
 
 function showEndOptionsAfterDelay() {
@@ -74,17 +76,22 @@ function goToMenu() {
 }
 
 function openControls() {
+    currentScreen = "controls";
+    updateMobileControlsVisibility();
+
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('controlsMenu').classList.remove('hidden');
 }
 
 function openAudioMenu() {
+    currentScreen = "audio";
+    updateMobileControlsVisibility();
+
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('audioMenu').classList.remove('hidden');
+
     const checkbox = document.getElementById('audioCheckbox');
-    if (checkbox) {
-        checkbox.checked = audioEnabled;
-    }
+    if (checkbox) checkbox.checked = audioEnabled;
 }
 
 function backFromAudio() {
@@ -92,19 +99,26 @@ function backFromAudio() {
     document.getElementById('mainMenu').classList.remove('hidden');
 }
 
-function backToMenu() {
-    document.getElementById('controlsMenu').classList.add('hidden');
+function backFromAudio() {
+    currentScreen = "menu";
+    updateMobileControlsVisibility();
+
+    document.getElementById('audioMenu').classList.add('hidden');
     document.getElementById('mainMenu').classList.remove('hidden');
-    stopGameMusic();
-    playMenuMusic();
 }
 
 function openImpressum() {
+    currentScreen = "impressum";
+    updateMobileControlsVisibility();
+
     document.getElementById('mainMenu').classList.add('hidden');
     document.getElementById('impressumOverlay').classList.remove('hidden');
 }
 
 function closeImpressum() {
+    currentScreen = "menu";
+    updateMobileControlsVisibility();
+
     document.getElementById('impressumOverlay').classList.add('hidden');
     document.getElementById('mainMenu').classList.remove('hidden');
 }
@@ -114,6 +128,7 @@ window.addEventListener('click', unlockAudio);
 window.addEventListener('load', () => {
     initMenuSounds();
     init();
+    updateMobileControlsVisibility(); // 👈 Initial ausblenden
 });
 
 window.addEventListener('keydown', (e) => {
@@ -133,6 +148,44 @@ window.addEventListener('keyup', (e) => {
     if (e.keyCode == 32) keyboard.SPACE = false;
     if (e.keyCode == 78) keyboard.N = false;
 });
+
+function initMobileControls() {
+    if (window.innerWidth > 768) return; // nur Mobile
+
+    bindTouch('btnLeft', 'LEFT');
+    bindTouch('btnRight', 'RIGHT');
+    bindTouch('btnJump', 'UP');
+    bindTouch('btnThrow', 'N'); // N = werfen (wie bei dir)
+}
+
+function bindTouch(id, key) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+
+    btn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        keyboard[key] = true;
+    });
+
+    btn.addEventListener('touchend', e => {
+        e.preventDefault();
+        keyboard[key] = false;
+    });
+
+    btn.addEventListener('touchcancel', () => {
+        keyboard[key] = false;
+    });
+}
+
+function updateMobileControlsVisibility() {
+    const controls = document.getElementById('mobileControls');
+    if (!controls) return;
+
+    const isMobile = window.innerWidth <= 768;
+    const isGame = currentScreen === 'game';
+
+    controls.style.display = (isMobile && isGame) ? 'block' : 'none';
+}
 
 function resizeCanvas() {
     const canvas = document.getElementById('gameCanvas');
