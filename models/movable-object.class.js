@@ -4,6 +4,12 @@ class MovableObject extends drawableObject {
     speedY = 0;
     acceleration = 2;
     LP = 100;
+    offset = {
+        top: 10,
+        bottom: 10,
+        left: 10,
+        right: 10
+    };
 
 
     applyGravity() {
@@ -54,7 +60,7 @@ class MovableObject extends drawableObject {
         if (this.LP < 0) {
             this.LP = 0
         };
-    
+
     }
 
     isDead() {

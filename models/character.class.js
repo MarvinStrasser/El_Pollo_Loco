@@ -99,23 +99,27 @@ class characterPepe extends MovableObject {
         this.handleAnimation();
     }
 
-    handleMovement() {
-        setInterval(() => {
-            if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
-                this.hasMoved = true;
-                this.world.activateEnemies();
-            }
-            if (this.isDead()) {
-                stopFootsteps();
-                return;
-            }
-            if (this.world.keyboard.RIGHT) this.moveRight();
-            if (this.world.keyboard.LEFT) this.moveLeft();
-            if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
-            this.handleFootsteps();
-            this.world.camera_x = -this.x + 100;
-        }, 1000 / 60);
-    }
+handleMovement() {
+    setInterval(() => {
+        if (gameOver) {
+            stopFootsteps();
+            return;
+        }
+        if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
+            this.hasMoved = true;
+            this.world.activateEnemies();
+        }
+        if (this.isDead()) {
+            stopFootsteps();
+            return;
+        }
+        if (this.world.keyboard.RIGHT) this.moveRight();
+        if (this.world.keyboard.LEFT) this.moveLeft();
+        if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
+        this.handleFootsteps();
+        this.world.camera_x = -this.x + 100;
+    }, 1000 / 60);
+}
 
     handleFootsteps() {
         if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {

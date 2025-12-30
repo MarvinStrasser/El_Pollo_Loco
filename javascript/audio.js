@@ -19,6 +19,7 @@ let jumpSound;
 let winMusic;
 let loseMusic;
 let hurtSound;
+let bossHitSound;
 
 
 function initMenuSounds() {
@@ -73,6 +74,9 @@ function initMenuSounds() {
     bossSound.loop = false;
     bossSound.volume = 0.7;
 
+    bossHitSound = new Audio('./audio/boss_hit.mp3');
+    bossHitSound.volume = 0.4;
+
     bossDeathSound = new Audio('./audio/chicken_died.mp3');
     bossDeathSound.volume = 0.5;
 
@@ -107,7 +111,7 @@ function unlockAudio() {
         // 🔑 DAS IST DER FIX
         if (currentScreen === "menu") playMenuMusic();
         if (currentScreen === "game") playGameMusic();
-    }).catch(() => {});
+    }).catch(() => { });
 }
 
 function playMenuMusic() {
@@ -213,6 +217,12 @@ function stopBossSound() {
 
 function playBossDeathSound() {
     playSound(bossDeathSound);
+}
+
+function playBossHitSound() {
+    if (!audioEnabled) return;
+    bossHitSound.currentTime = 0;
+    bossHitSound.play();
 }
 
 function playFootsteps() {

@@ -17,13 +17,10 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
-
-        this.level = createLevel1(); // ✅ JEDES MAL NEU
-
+        this.level = createLevel1();
         this.draw();
         this.setWorld();
         this.checkCollisions();
-
         this.statusBar.setPercentage(100);
         this.coinBar.setPercentage(0);
         this.bottleBar.setPercentage(0);
@@ -79,12 +76,12 @@ class World {
 
     checkItemCollisions() {
         this.collectItems(this.level.coins, () => {
-            this.character.coins = Math.min(this.character.coins + 20, 100);
+            this.character.coins = Math.min(this.character.coins + 5, 100);
             this.coinBar.setPercentage(this.character.coins);
             playCoinSound();
         });
         this.collectItems(this.level.bottles, () => {
-            this.character.bottles = Math.min(this.character.bottles + 20, 100);
+            this.character.bottles = Math.min(this.character.bottles + 8, 100);
             this.bottleBar.setPercentage(this.character.bottles);
             playBottleSound();
         });
@@ -196,7 +193,7 @@ class World {
             );
             bottle.throw(this.character.otherDirection);
             this.throwableObjects.push(bottle);
-            this.character.bottles -= 20;
+            this.character.bottles -= 8;
             this.bottleBar.setPercentage(this.character.bottles);
             this.keyboard.N = false;
         }

@@ -62,7 +62,7 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_BOSS_ATTACK);
         this.loadImages(this.IMAGES_BOSS_HURT);
         this.loadImages(this.IMAGES_BOSS_DEAD);
-        this.x = 1700;
+        this.x = 3400;
         this.animate();
     }
 
@@ -82,10 +82,8 @@ class Endboss extends MovableObject {
 
     updateMovement() {
         if (this.state !== 'walking' || this.dead || !this.world) return;
-
         const pepe = this.world.character;
         if (!pepe) return;
-
         if (pepe.x < this.x) {
             this.x -= this.speed;
             this.otherDirection = false;
@@ -103,7 +101,6 @@ class Endboss extends MovableObject {
             hurt: this.IMAGES_BOSS_HURT,
             dead: this.IMAGES_BOSS_DEAD
         };
-
         this.playAnimation(animations[this.state]);
     }
 
@@ -126,6 +123,7 @@ class Endboss extends MovableObject {
     hit() {
         if (this.dead) return;
         this.energy -= 20;
+        playBossHitSound();
         this.state = 'hurt';
         setTimeout(() => {
             if (!this.dead) this.state = 'walking';
@@ -139,38 +137,29 @@ class Endboss extends MovableObject {
     die() {
         if (this.dead || gameOver) return;
         gameOver = true;
-
         stopBossSound();
         stopBossMusic();
         stopAllMusic();
-
         this.dead = true;
         this.state = 'dead';
         this.isDying = true;
-
         clearInterval(this.animationInterval);
-
         let i = 0;
         this.animationInterval = setInterval(() => {
             if (i >= this.IMAGES_BOSS_DEAD.length) {
                 clearInterval(this.animationInterval);
-
                 playBossDeathSound();
-
                 setTimeout(() => {
                     document.getElementById('winScreen').classList.remove('hidden');
                     playWinMusic();
-
                     setTimeout(() => {
                         document.getElementById('winScreen').classList.add('hidden');
                         document.getElementById('endOptionsScreen').classList.remove('hidden');
                     }, 5000);
 
                 }, 2000);
-
                 return;
             }
-
             this.img = this.imageCache[this.IMAGES_BOSS_DEAD[i]];
             i++;
         }, 100);

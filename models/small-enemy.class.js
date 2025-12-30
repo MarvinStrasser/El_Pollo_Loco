@@ -1,24 +1,18 @@
-class enemyChicken extends MovableObject {
-    height = 70;
-    width = 70;
-    y = 360;
-    energy = 20;
+class enemyChick extends MovableObject {
+    height = 50;
+    width = 50;
+    y = 380;
+    energy = 10;
     active = false;
-    offset = {
-        top: 12,
-        bottom: 12,
-        left: 10,
-        right: 10
-    };
 
     IMAGES_WALKING = [
-        'img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
-        'img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
-        'img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
+        'img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
+        'img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
+        'img/3_enemies_chicken/chicken_small/1_walk/3_w.png'
     ];
 
     IMAGES_DEAD = [
-        'img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
+        'img/3_enemies_chicken/chicken_small/2_dead/dead.png'
     ];
 
     constructor(x) {
@@ -26,7 +20,7 @@ class enemyChicken extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_DEAD);
         this.x = x;
-        this.speed = 5 + Math.random() * 0.25;
+        this.speed = 6 + Math.random() * 0.5;
         this.animate();
     }
 
@@ -36,11 +30,11 @@ class enemyChicken extends MovableObject {
             if (this.dead || !this.active) return;
             this.x -= this.speed;
             this.playAnimation(this.IMAGES_WALKING);
-        }, 120);
+        }, 100);
     }
 
     hit() {
-        this.energy -= 20;
+        this.energy -= 10;
         if (this.energy <= 0) this.die();
     }
 
@@ -48,7 +42,6 @@ class enemyChicken extends MovableObject {
         if (this.dead) return;
         this.dead = true;
         this.speed = 0;
-        this.offset = { top: 0, bottom: 0, left: 0, right: 0 };
         playChickenSplatSound();
         clearInterval(this.animationInterval);
         this.img = this.imageCache[this.IMAGES_DEAD[0]];
