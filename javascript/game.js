@@ -22,6 +22,7 @@ function init() {
             currentScreen = "menu";
         }
     }, 2500);
+    enforceLandscapeMode();
 }
 
 function startGame() {
@@ -159,4 +160,23 @@ function resizeCanvas() {
 
 window.addEventListener('resize', resizeCanvas);
 window.addEventListener('orientationchange', resizeCanvas);
+
+function enforceLandscapeMode() {
+    const overlay = document.getElementById('rotateOverlay');
+    const canvas = document.getElementById('gameWrapper');
+
+    const isMobile = window.innerWidth < 1024;
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (isMobile && isPortrait) {
+        overlay.style.display = 'flex';
+        if (canvas) canvas.style.display = 'none';
+    } else {
+        overlay.style.display = 'none';
+        if (canvas) canvas.style.display = 'flex';
+    }
+}
+
+window.addEventListener('resize', enforceLandscapeMode);
+window.addEventListener('orientationchange', enforceLandscapeMode);
 
