@@ -5,15 +5,15 @@ let menuVisible = false;
 let gameOver = false;
 let allowWinScreen = false;
 let allowLoseScreen = false;
+const BASE_WIDTH = 720;
+const BASE_HEIGHT = 480;
 
 function init() {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainMenu = document.getElementById('mainMenu');
     document.getElementById('impressumOverlay').classList.add('hidden')
-
     initTimeout = setTimeout(() => {
         loadingScreen.style.display = 'none';
-
         if (sessionStorage.getItem('autoStartGame') === 'true') {
             sessionStorage.removeItem('autoStartGame');
             startGame();
@@ -132,4 +132,31 @@ window.addEventListener('keyup', (e) => {
     if (e.keyCode == 32) keyboard.SPACE = false;
     if (e.keyCode == 78) keyboard.N = false;
 });
+
+function resizeCanvas() {
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) return;
+
+    if (window.innerWidth <= 768) {
+        const scale = Math.min(
+            window.innerWidth / BASE_WIDTH,
+            window.innerHeight / BASE_HEIGHT
+        );
+
+        canvas.width = BASE_WIDTH * scale;
+        canvas.height = BASE_HEIGHT * scale;
+
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+    } else {
+        canvas.width = BASE_WIDTH;
+        canvas.height = BASE_HEIGHT;
+
+        canvas.style.width = '720px';
+        canvas.style.height = '480px';
+    }
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', resizeCanvas);
 
