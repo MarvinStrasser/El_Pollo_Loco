@@ -180,6 +180,7 @@ class Endboss extends MovableObject {
         stopBossSound();
         stopBossMusic();
         stopAllMusic();
+        stopFootsteps();
         this.dead = true;
         this.state = 'dead';
         this.isDying = true;
