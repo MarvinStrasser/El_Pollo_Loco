@@ -73,7 +73,7 @@ function initEffectSounds() {
     footsteps = new Audio('./audio/footsteps.mp3');
     footsteps.loop = true;
     footsteps.volume = 0.8;
-    jumpSound = new Audio('./audio/jump.mp3');
+    jumpSound = new Audio('./audio/Jump.mp3');
     jumpSound.volume = 0.6;
     hurtSound = new Audio('./audio/hurt.mp3');
     hurtSound.volume = 0.6;
