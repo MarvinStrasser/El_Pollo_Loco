@@ -45,6 +45,12 @@ function createLevel1() {
     );
 }
 
+/**
+ * Description placeholder
+ *
+ * @param {*} count 
+ * @returns {{}} 
+ */
 function createChickens(count) {
     let enemies = [];
     let lastX = 600;
@@ -54,13 +60,18 @@ function createChickens(count) {
         if (Math.random() < 0.4) {
             enemies.push(new enemyChick(x));
         } else {
-            enemies.push(new enemyChicken(x));
+            enemies.push(new EnemyChicken(x));
         }
         lastX = x;
     }
     return enemies;
 }
 
+/**
+ * Description placeholder
+ *
+ * @returns {{}} 
+ */
 function createCoins() {
     let coins = [];
     coins.push(...createCoinArc(300, 6));
@@ -73,6 +84,11 @@ function createCoins() {
     return coins;
 }
 
+/**
+ * Description placeholder
+ *
+ * @returns {{}} 
+ */
 function createBottles() {
     let bottles = [];
     let positions = [
@@ -89,6 +105,13 @@ function createBottles() {
     return bottles;
 }
 
+/**
+ * Description placeholder
+ *
+ * @param {*} startX 
+ * @param {*} amount 
+ * @returns {{}} 
+ */
 function createCoinArc(startX, amount) {
     let coins = [];
     let spacing = 40;

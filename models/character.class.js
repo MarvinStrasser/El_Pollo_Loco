@@ -1,16 +1,16 @@
-class characterPepe extends MovableObject {
+class CharacterPepe extends MovableObject {
     height = 250;
     width = 150;
     x = 100;
     speed = 5;
-    lastActionTime = Date.now();
-    longIdleTimeout = 15000;
+    LP = 100;
     coins = 0;
     bottles = 0;
-    LP = 100;
+    MAX_BOTTLES = 10;
+    lastActionTime = Date.now();
+    longIdleTimeout = 15000;
     throwOnCooldown = false;
     throwCooldown = 600;
-    hasMoved = false;
     isHurt = false;
     hurtTimeout = 100;
     isDeadFalling = false;
@@ -18,8 +18,12 @@ class characterPepe extends MovableObject {
     deathInterval = null;
     deathFallSpeed = 30;
     isSnoring = false;
+    hasMoved = false;
     world;
 
+    /* =========================
+       IMAGES
+    ========================= */
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
         './img/2_character_pepe/2_walk/W-22.png',
@@ -83,104 +87,126 @@ class characterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-57.png'
     ];
 
-
+    /**
+     * Creates the character.
+     */
     constructor() {
         super().loadImage('./img/2_character_pepe/2_walk/W-21.png');
+        this.loadAllImages();
+        this.applyGravity();
+        this.startAnimations();
+    }
+
+    /**
+     * Loads all character images.
+     */
+    loadAllImages() {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.loadImages(this.IMAGES_JUMP);
         this.loadImages(this.IMAGES_PEPE_HURT);
         this.loadImages(this.IMAGES_PEPE_DIES);
-        this.applyGravity();
-        this.animate();
     }
 
-    animate() {
-        this.handleMovement();
-        this.handleAnimation();
+    /**
+     * Starts animation loops.
+     */
+    startAnimations() {
+        this.startMovementLoop();
+        this.startAnimationLoop();
     }
 
+    /**
+     * Handles movement input.
+     */
+    startMovementLoop() {
+        setInterval(() => this.handleMovement(), 1000 / 60);
+    }
+
+    /**
+     * Handles character movement.
+     */
     handleMovement() {
-        setInterval(() => {
-            if (gameOver) {
-                stopFootsteps();
-                return;
-            }
-
-            if (!this.hasMoved && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
-                this.hasMoved = true;
-                this.world.activateEnemies();
-            }
-
-            if (this.isDead()) {
-                stopFootsteps();
-                return;
-            }
-
-            // Bewegung
-            if (this.world.keyboard.RIGHT) this.moveRight();
-            if (this.world.keyboard.LEFT) this.moveLeft();
-
-            // Springen
-            if (this.world.keyboard.UP && !this.aboveGround()) {
-                this.jump();
-            }
-
-            // Flasche werfen (hart reglementiert)
-            if (this.world.keyboard.N && this.canThrow()) {
-                this.throwBottle();
-            }
-
-            // Sound & Kamera
-            this.handleFootsteps();
-            this.world.camera_x = -this.x + 100;
-
-        }, 1000 / 60);
+        if (gameOver || this.isDead()) return;
+        this.activateEnemiesOnFirstMove();
+        this.handleHorizontalMovement();
+        this.handleJump();
+        this.handleBottleThrow();
+        this.updateCamera();
+        this.handleFootsteps();
     }
 
-    canThrow() {
-        if (this.throwOnCooldown) return false;
-        if (this.bottles <= 0) return false;
-        return true;
-    }
-
-    throwBottle() {
-        this.throwOnCooldown = true;
-
-        this.bottles--;
-        this.world.bottleBar.setPercentage(
-            (this.bottles / this.MAX_BOTTLES) * 100
-        );
-
-        const bottle = new ThrowableObject(
-            this.x + (this.otherDirection ? -20 : 50),
-            this.y + 100
-        );
-
-        bottle.throw(this.otherDirection);
-        this.world.throwableObjects.push(bottle);
-
-        setTimeout(() => {
-            this.throwOnCooldown = false;
-        }, this.throwCooldown);
-    }
-
+    /**
+    * Handles footstep sounds based on movement.
+    */
     handleFootsteps() {
-        if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {
+        if (
+            (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
+            !this.aboveGround()
+        ) {
             playFootsteps();
         } else {
             stopFootsteps();
         }
     }
 
-    handleAnimation() {
+    /**
+     * Activates enemies after first movement.
+     */
+    activateEnemiesOnFirstMove() {
+        if (this.hasMoved) return;
+        if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) return;
+        this.hasMoved = true;
+        this.world.activateEnemies();
+    }
+
+    /**
+     * Handles left and right movement.
+     */
+    handleHorizontalMovement() {
+        if (this.world.keyboard.RIGHT) this.moveRight();
+        if (this.world.keyboard.LEFT) this.moveLeft();
+    }
+
+    /**
+     * Handles jumping.
+     */
+    handleJump() {
+        if (this.world.keyboard.UP && !this.aboveGround()) {
+            this.jump();
+        }
+    }
+
+    /**
+     * Handles bottle throwing.
+     */
+    handleBottleThrow() {
+        if (this.world.keyboard.N && this.canThrow()) {
+            this.throwBottle();
+        }
+    }
+
+    /**
+     * Updates camera position.
+     */
+    updateCamera() {
+        this.world.camera_x = -this.x + 100;
+    }
+
+    /**
+     * Starts animation loop.
+     */
+    startAnimationLoop() {
         setInterval(() => this.playCurrentAnimation(), 120);
     }
 
+    /**
+     * Plays correct animation.
+     */
     playCurrentAnimation() {
         if (gameOver || allowWinScreen || allowLoseScreen) {
-            this.stopSnoringIfNeeded();
+            this.stopSnoring();
             return;
         }
         if (this.isDead()) return;
@@ -188,123 +214,179 @@ class characterPepe extends MovableObject {
         if (this.speedY > 0) return this.playJumpUp();
         if (this.aboveGround()) return this.playJumpDown();
         if (this.isMoving()) return this.playAnimation(this.IMAGES_WALKING);
-        if (this.isLongIdle()) {
-            if (!this.isSnoring) {
-                this.isSnoring = true;
-                playSnoringSound();
-            }
-            return this.playAnimation(this.IMAGES_LONG_IDLE);
-        }
+        if (this.isLongIdle()) return this.playLongIdle();
         this.playAnimation(this.IMAGES_IDLE);
     }
 
-    stopSnoringIfNeeded() {
-        if (this.isSnoring) {
-            this.isSnoring = false;
-            stopSnoringSound();
+    /**
+     * Plays long idle animation.
+     */
+    playLongIdle() {
+        if (!this.isSnoring) {
+            this.isSnoring = true;
+            playSnoringSound();
         }
+        this.playAnimation(this.IMAGES_LONG_IDLE);
     }
 
+    /**
+     * Stops snoring sound.
+     */
+    stopSnoring() {
+        if (!this.isSnoring) return;
+        this.isSnoring = false;
+        stopSnoringSound();
+    }
+
+    /* =========================
+       ACTIONS
+    ========================= */
+    /** Description placeholder */
     moveRight() {
-        if (this.x < this.world.level.level_end_x) {
-            this.stopSnoringIfNeeded();
-            this.x += this.speed;
-            this.otherDirection = false;
-            this.lastActionTime = Date.now();
-        }
+        if (this.x >= this.world.level.level_end_x) return;
+        this.stopSnoring();
+        this.x += this.speed;
+        this.otherDirection = false;
+        this.lastActionTime = Date.now();
     }
 
+    /** Description placeholder */
     moveLeft() {
-        if (this.x > 0) {
-            this.stopSnoringIfNeeded();
-            this.x -= this.speed;
-            this.otherDirection = true;
-            this.lastActionTime = Date.now();
-        }
+        if (this.x <= 0) return;
+        this.stopSnoring();
+        this.x -= this.speed;
+        this.otherDirection = true;
+        this.lastActionTime = Date.now();
     }
 
+    /** Description placeholder */
     jump() {
-        if (!this.aboveGround()) {
-            this.speedY = 20;
-            this.lastActionTime = Date.now();
-            playJumpSound();
-        }
+        this.speedY = 20;
+        this.lastActionTime = Date.now();
+        playJumpSound();
     }
 
+    /**
+     * Description placeholder
+     *
+     * @returns {boolean} 
+     */
+    canThrow() {
+        return !this.throwOnCooldown && this.bottles > 0;
+    }
+
+    /** Description placeholder */
+    throwBottle() {
+        this.throwOnCooldown = true;
+        this.bottles--;
+        this.updateBottleBar();
+        const bottle = new ThrowableObject(
+            this.x + (this.otherDirection ? -20 : 50),
+            this.y + 100
+        );
+        bottle.throw(this.otherDirection);
+        this.world.throwableObjects.push(bottle);
+        setTimeout(() => this.throwOnCooldown = false, this.throwCooldown);
+    }
+
+    /** Description placeholder */
+    updateBottleBar() {
+        this.world.bottleBar.setPercentage(
+            (this.bottles / this.MAX_BOTTLES) * 100
+        );
+    }
+
+    /* =========================
+       STATE
+    ========================= */
+    /**
+     * Description placeholder
+     *
+     * @returns {*} 
+     */
     isMoving() {
         return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
     }
 
+    /**
+     * Description placeholder
+     *
+     * @returns {boolean} 
+     */
     isLongIdle() {
         return Date.now() - this.lastActionTime > this.longIdleTimeout;
     }
 
+    /** Description placeholder */
     playJumpUp() {
         this.playAnimation(this.IMAGES_JUMP.slice(3, 4));
     }
 
+    /** Description placeholder */
     playJumpDown() {
         this.playAnimation(this.IMAGES_JUMP.slice(4));
     }
 
-    playFootsteps() {
-        if (!audioEnabled || !audioUnlocked) return;
-        if (!isWalkingSound) {
-            footsteps.currentTime = 0;
-            footsteps.loop = true;
-            footsteps.volume = 0.4;
-            footsteps.play();
-            isWalkingSound = true;
-        }
-    }
+    /* =========================
+       DAMAGE & DEATH
+    ========================= */
 
-    stopFootsteps() {
-        footsteps.pause();
-        footsteps.currentTime = 0;
-        isWalkingSound = false;
-    }
-
+    /**
+     * Description placeholder
+     *
+     * @param {number} [damage=40] 
+     */
     hit(damage = 40) {
         if (this.isHurt || this.isDead()) return;
-        this.LP -= damage;
-        if (this.LP < 0) this.LP = 0;
-        this.hurt();
+        this.LP = Math.max(0, this.LP - damage);
+        this.startHurt();
     }
 
-    hurt() {
-        if (this.isHurt) return;
-        this.stopSnoringIfNeeded();
+    /** Description placeholder */
+    startHurt() {
+        this.stopSnoring();
         this.isHurt = true;
         playHurtSound();
+
         setTimeout(() => {
             this.isHurt = false;
             if (this.isDead()) this.die();
         }, this.hurtTimeout);
     }
+
+    /** Description placeholder */
     die() {
         if (this.isDeadFalling || gameOver) return;
-        stopBossSound();
         gameOver = true;
-        this.stopSnoringIfNeeded();
         stopAllMusic();
+        playLoseMusic();
+        stopBossSound();
+        stopFootsteps();
+        this.startDeathAnimation();
+        this.showLoseScreen();
+    }
+
+    /** Description placeholder */
+    startDeathAnimation() {
         this.isDeadFalling = true;
-        clearInterval(this.deathInterval);
         this.deathImageIndex = 0;
         this.deathInterval = setInterval(() => {
             this.y += this.deathFallSpeed;
-            if (this.deathImageIndex < this.IMAGES_PEPE_DIES.length) {
-                this.img = this.imageCache[this.IMAGES_PEPE_DIES[this.deathImageIndex]];
-                this.deathImageIndex++;
-            }
+            if (this.deathImageIndex >= this.IMAGES_PEPE_DIES.length) return;
+            const path = this.IMAGES_PEPE_DIES[this.deathImageIndex];
+            this.img = this.imageCache[path];
+            this.deathImageIndex++;
         }, 100);
-        playLoseMusic();
-        setTimeout(() => {
-            document.getElementById('loseScreen').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('loseScreen').classList.add('hidden');
-                document.getElementById('endOptionsScreen').classList.remove('hidden');
-            }, 5000);
+    }
 
+    /** Description placeholder */
+    showLoseScreen() {
+        setTimeout(() => {
+            showElement('loseScreen');
+            setTimeout(() => {
+                hideElement('loseScreen');
+                showElement('endOptionsScreen');
+            }, 5000);
         }, 1200);
     }
 }

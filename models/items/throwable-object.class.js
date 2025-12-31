@@ -1,12 +1,10 @@
 class ThrowableObject extends MovableObject {
-
     IMAGES_BOTTLE_THROW = [
         './img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png',
         './img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png',
         './img/6_salsa_bottle/bottle_rotation/3_bottle_rotation.png',
         './img/6_salsa_bottle/bottle_rotation/4_bottle_rotation.png',
     ];
-
     IMAGES_BOTTLE_SPLASH = [
         './img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png',
         './img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png',
@@ -15,9 +13,13 @@ class ThrowableObject extends MovableObject {
         './img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png',
         './img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png',
     ];
-
     hasSplashed = false;
 
+    /**
+     * Creates a throwable bottle object.
+     * @param {number} x - Start x-position
+     * @param {number} y - Start y-position
+     */
     constructor(x, y) {
         super();
         this.loadImages(this.IMAGES_BOTTLE_THROW);
@@ -34,6 +36,9 @@ class ThrowableObject extends MovableObject {
         this.speedX = 10;
     }
 
+    /**
+     * Applies gravity to the thrown bottle.
+     */
     applyGravity() {
         this.gravityInterval = setInterval(() => {
             this.y -= this.speedY;
@@ -45,6 +50,10 @@ class ThrowableObject extends MovableObject {
         }, 1000 / 25);
     }
 
+    /**
+     * Throws the bottle.
+     * @param {boolean} otherDirection - Direction of the throw
+     */
     throw(otherDirection = false) {
         this.otherDirection = otherDirection;
         this.speedY = 20;
@@ -57,6 +66,9 @@ class ThrowableObject extends MovableObject {
         }, 25);
     }
 
+    /**
+     * Handles bottle splash animation and cleanup.
+     */
     splash() {
         if (this.hasSplashed) return;
         this.hasSplashed = true;

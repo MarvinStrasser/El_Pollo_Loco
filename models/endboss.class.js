@@ -13,14 +13,12 @@ class Endboss extends MovableObject {
     hasDealtDamage = false;
     hasPlayedDeathSound = false;
     damage = 20;
-
     IMAGES_WALKING = [
         './img/4_enemie_boss_chicken/1_walk/G1.png',
         './img/4_enemie_boss_chicken/1_walk/G2.png',
         './img/4_enemie_boss_chicken/1_walk/G3.png',
         './img/4_enemie_boss_chicken/1_walk/G4.png',
     ];
-
     IMAGES_ALERT = [
         './img/4_enemie_boss_chicken/2_alert/G5.png',
         './img/4_enemie_boss_chicken/2_alert/G6.png',
@@ -31,7 +29,6 @@ class Endboss extends MovableObject {
         './img/4_enemie_boss_chicken/2_alert/G11.png',
         './img/4_enemie_boss_chicken/2_alert/G12.png'
     ];
-
     IMAGES_BOSS_ATTACK = [
         './img/4_enemie_boss_chicken/3_attack/G13.png',
         './img/4_enemie_boss_chicken/3_attack/G14.png',
@@ -42,19 +39,21 @@ class Endboss extends MovableObject {
         './img/4_enemie_boss_chicken/3_attack/G19.png',
         './img/4_enemie_boss_chicken/3_attack/G20.png',
     ];
-
     IMAGES_BOSS_HURT = [
         './img/4_enemie_boss_chicken/4_hurt/G21.png',
         './img/4_enemie_boss_chicken/4_hurt/G22.png',
         './img/4_enemie_boss_chicken/4_hurt/G23.png',
     ];
-
     IMAGES_BOSS_DEAD = [
         './img/4_enemie_boss_chicken/5_dead/G24.png',
         './img/4_enemie_boss_chicken/5_dead/G25.png',
         './img/4_enemie_boss_chicken/5_dead/G26.png',
     ];
 
+    /**
+       * Creates a new Endboss instance.
+       * Loads all required images and starts the animation loop.
+       */
     constructor() {
         super().loadImage(this.IMAGES_ALERT[0]);
         this.loadImages(this.IMAGES_ALERT);
@@ -66,6 +65,10 @@ class Endboss extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Starts the main animation loop of the endboss.
+     * Prevents multiple animation intervals from running.
+     */
     animate() {
         if (this.animationStarted) return;
         this.animationStarted = true;
@@ -76,10 +79,18 @@ class Endboss extends MovableObject {
         }, 150);
     }
 
+    /**
+     * Updates the current state of the endboss.
+     * Switches to dead state if the boss is defeated.
+     */
     updateState() {
         if (this.dead) this.state = 'dead';
     }
 
+    /**
+     * Handles the movement logic of the endboss.
+     * Moves towards the player while in walking state.
+     */
     updateMovement() {
         if (this.state !== 'walking' || this.dead || !this.world) return;
         const pepe = this.world.character;
@@ -93,6 +104,9 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Updates the animation based on the current boss state.
+     */
     updateAnimation() {
         const animations = {
             alert: this.IMAGES_ALERT,
@@ -104,11 +118,18 @@ class Endboss extends MovableObject {
         this.playAnimation(animations[this.state]);
     }
 
+    /**
+     * Switches the endboss into walking state.
+     */
     startWalking() {
         if (this.dead) return;
         this.state = 'walking';
     }
 
+    /**
+     * Starts an attack animation and attack state.
+     * Automatically returns to walking state after the attack duration.
+     */
     startAttack() {
         if (this.dead || this.isAttacking) return;
         this.isAttacking = true;
@@ -120,6 +141,10 @@ class Endboss extends MovableObject {
         }, this.attackDuration);
     }
 
+    /**
+     * Handles damage taken by the endboss.
+     * Triggers hurt animation and death if energy reaches zero.
+     */
     hit() {
         if (this.dead) return;
         this.energy -= 20;
@@ -134,8 +159,23 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Handles the death of the endboss.
+     * Stops gameplay, plays the death animation
+     * and schedules the win screen.
+     */
     die() {
         if (this.dead || gameOver) return;
+        this.prepareDeath();
+        this.startDeathAnimation();
+        this.scheduleWinScreen();
+    }
+
+    /**
+     * Prepares the endboss death state.
+     * Stops all sounds and clears active animations.
+     */
+    prepareDeath() {
         gameOver = true;
         stopBossSound();
         stopBossMusic();
@@ -144,24 +184,37 @@ class Endboss extends MovableObject {
         this.state = 'dead';
         this.isDying = true;
         clearInterval(this.animationInterval);
+    }
+
+    /**
+     * Plays the endboss death animation frame by frame.
+     * Plays the death sound after the final frame.
+     */
+    startDeathAnimation() {
         let i = 0;
         this.animationInterval = setInterval(() => {
             if (i >= this.IMAGES_BOSS_DEAD.length) {
                 clearInterval(this.animationInterval);
                 playBossDeathSound();
-                setTimeout(() => {
-                    document.getElementById('winScreen').classList.remove('hidden');
-                    playWinMusic();
-                    setTimeout(() => {
-                        document.getElementById('winScreen').classList.add('hidden');
-                        document.getElementById('endOptionsScreen').classList.remove('hidden');
-                    }, 5000);
-
-                }, 2000);
                 return;
             }
             this.img = this.imageCache[this.IMAGES_BOSS_DEAD[i]];
             i++;
         }, 100);
+    }
+
+    /**
+     * Displays the win screen after the endboss is defeated.
+     * Plays win music and shows end options after a delay.
+     */
+    scheduleWinScreen() {
+        setTimeout(() => {
+            document.getElementById('winScreen').classList.remove('hidden');
+            playWinMusic();
+            setTimeout(() => {
+                document.getElementById('winScreen').classList.add('hidden');
+                document.getElementById('endOptionsScreen').classList.remove('hidden');
+            }, 5000);
+        }, 2000);
     }
 }

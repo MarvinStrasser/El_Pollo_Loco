@@ -1,11 +1,11 @@
 class World {
-    character = new characterPepe();
+    character = new CharacterPepe();
     camera_x = 0;
     lastHit = 0;
-    statusBar = new statusBar('health');
-    coinBar = new statusBar('coins');
-    bottleBar = new statusBar('bottles');
-    bossBar = new statusBar('boss');
+    statusBar = new StatusBar('health');
+    coinBar = new StatusBar('coins');
+    bottleBar = new StatusBar('bottles');
+    bossBar = new StatusBar('boss');
     boss = null;
     bossBarVisible = false;
     throwableObjects = [];
@@ -23,7 +23,6 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
         this.level = createLevel1();
-
         this.initWorld();
     }
 
@@ -125,7 +124,6 @@ class World {
         this.level.enemies
             .filter(e => !(e instanceof Endboss))
             .forEach(e => this.addToMap(e));
-
         if (this.boss) this.addToMap(this.boss);
     }
 
@@ -155,6 +153,13 @@ class World {
         if (object.otherDirection) this.flipImage(object);
         object.draw(this.ctx);
         if (object.otherDirection) this.flipImageBack(object);
+    }
+
+    /**
+ * Activates all enemies in the level.
+ */
+    activateEnemies() {
+        this.level.enemies.forEach(enemy => enemy.active = true);
     }
 
     /**
@@ -246,7 +251,6 @@ class World {
     handleBossHit() {
         if (!this.boss.isAttacking || this.boss.hasDealtDamage) return;
         if (!this.character.isColliding(this.boss)) return;
-
         this.character.hit(this.boss.damage);
         this.statusBar.setPercentage(this.character.LP);
         this.boss.hasDealtDamage = true;
@@ -317,7 +321,6 @@ class World {
             enemy.hit();
             bottle.splash();
         });
-
         if (this.boss && bottle.isColliding(this.boss)) {
             this.boss.hit();
             this.bossBar.setPercentage(this.boss.energy);
@@ -331,7 +334,6 @@ class World {
     checkBossTrigger() {
         if (!this.boss || this.bossBarVisible) return;
         if (this.character.x <= this.boss.x - this.BOSS_TRIGGER_DISTANCE) return;
-
         this.activateBossFight();
     }
 

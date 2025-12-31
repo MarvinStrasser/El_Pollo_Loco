@@ -7,11 +7,21 @@ class drawableObject {
     imageCache = [];
     currentImage = 0;
 
+    /**
+     * Description placeholder
+     *
+     * @param {*} path 
+     */
     loadImage(path) {
         this.img = new Image();
         this.img.src = path;
     }
 
+    /**
+     * Description placeholder
+     *
+     * @param {*} arr 
+     */
     loadImages(arr) {
         arr.forEach((path) => {
             let img = new Image();
@@ -21,9 +31,12 @@ class drawableObject {
         });
     }
 
+    /**
+     * Description placeholder
+     *
+     * @param {*} ctx 
+     */
     draw(ctx) {
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
-
-
 }
