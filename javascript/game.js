@@ -255,7 +255,8 @@ function setKeyState(keyCode, state) {
 
 /*** Initializes mobile controls.*/
 function initMobileControls() {
-    if (window.innerWidth > 768) return;
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (!isTouch) return;
     bindTouch('btnLeft', 'LEFT');
     bindTouch('btnRight', 'RIGHT');
     bindTouch('btnJump', 'UP');
@@ -286,15 +287,20 @@ function setTouchKey(event, key, state) {
 function updateMobileControlsVisibility() {
     const controls = getElement('mobileControls');
     if (!controls) return;
-    const isMobile = window.innerWidth <= 768;
-    controls.style.display = (isMobile && currentScreen === 'game') ? 'block' : 'none';
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    controls.style.display = (isTouch && currentScreen === 'game') ? 'block' : 'none';
 }
 
 /*** Resizes the canvas.*/
 function resizeCanvas() {
     canvas = getElement('gameCanvas');
-    if (!canvas) return;
-    window.innerWidth <= 768 ? scaleCanvas() : resetCanvasSize();
+    if (!canvas || !world) return;
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        scaleCanvas();
+    } else {
+        resetCanvasSize();
+    }
 }
 
 /*** Scales canvas for mobile view.*/
