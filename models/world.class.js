@@ -13,10 +13,10 @@ class World {
     BOSS_TRIGGER_DISTANCE = 300;
     BOSS_ATTACK_DISTANCE = 100;
 
-    /**
+ /**
      * Creates the game world.
-     * @param {HTMLCanvasElement} canvas
-     * @param {Keyboard} keyboard
+     * @param {HTMLCanvasElement} canvas - Game canvas
+     * @param {Keyboard} keyboard - Keyboard input handler
      */
     constructor(canvas, keyboard) {
         this.canvas = canvas;
@@ -28,7 +28,7 @@ class World {
     }
 
     /**
-     * Initializes world state.
+     * Initializes the world state.
      */
     initWorld() {
         this.setWorldReferences();
@@ -37,7 +37,7 @@ class World {
     }
 
     /**
-     * Assigns world reference to all objects.
+     * Assigns the world reference to all relevant objects.
      */
     setWorldReferences() {
         this.character.world = this;
@@ -46,7 +46,7 @@ class World {
     }
 
     /**
-     * Initializes status bars.
+     * Initializes all status bars.
      */
     initStatusBars() {
         this.statusBar.setPercentage(100);
@@ -55,14 +55,14 @@ class World {
     }
 
     /**
-     * Starts the render loop.
+     * Starts the main game loop.
      */
     startGameLoop() {
         this.draw();
     }
 
     /**
-     * Main game loop.
+     * Main animation frame loop.
      */
     draw() {
         if (this.localGameId !== gameId) return;
@@ -83,7 +83,7 @@ class World {
     }
 
     /**
-     * Renders current frame.
+     * Renders the current frame.
      */
     renderFrame() {
         this.ctx.translate(this.camera_x, 0);
@@ -100,7 +100,7 @@ class World {
     }
 
     /**
-     * Removes dead enemies.
+     * Removes enemies that are marked for removal.
      */
     cleanupEnemies() {
         this.level.enemies = this.level.enemies.filter(e => !e.remove);
@@ -119,7 +119,7 @@ class World {
     }
 
     /**
-     * Draws character and enemies.
+     * Draws the player character and all enemies.
      */
     drawCharacterAndEnemies() {
         this.addToMap(this.character);
@@ -130,7 +130,7 @@ class World {
     }
 
     /**
-     * Draws UI elements.
+     * Draws all UI elements.
      */
     drawUI() {
         this.addToMap(this.statusBar);
@@ -140,15 +140,15 @@ class World {
     }
 
     /**
-     * Draws multiple objects.
-     * @param {Array} objects
+     * Draws a group of objects.
+     * @param {Array<DrawableObject>} objects
      */
     drawObjectGroup(objects) {
         objects.forEach(o => this.addToMap(o));
     }
 
     /**
-     * Draws a single object.
+     * Draws a single object onto the canvas.
      * @param {DrawableObject} object
      */
     addToMap(object) {
@@ -165,7 +165,7 @@ class World {
     }
 
     /**
-     * Flips object image.
+     * Flips an object image horizontally.
      * @param {DrawableObject} object
      */
     flipImage(object) {
@@ -176,7 +176,7 @@ class World {
     }
 
     /**
-     * Restores flipped image.
+     * Restores a previously flipped image.
      * @param {DrawableObject} object
      */
     flipImageBack(object) {
@@ -185,7 +185,7 @@ class World {
     }
 
     /**
-     * Checks all collisions.
+     * Checks all collision types.
      */
     checkCollisions() {
         this.checkEnemyCollisions();
@@ -193,6 +193,9 @@ class World {
         this.checkItemCollisions();
     }
 
+    /**
+     * Checks collisions between the character and enemies.
+     */
     checkEnemyCollisions() {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss || enemy.dead) return;
@@ -201,6 +204,10 @@ class World {
         });
     }
 
+    /**
+     * Handles a collision between the character and an enemy.
+     * @param {Enemy} enemy
+     */
     handleEnemyCollision(enemy) {
         if (this.isJumpKill(enemy)) {
             enemy.die();
@@ -211,17 +218,28 @@ class World {
         }
     }
 
+    /**
+     * Checks whether an enemy was killed by jumping on it.
+     * @param {Enemy} enemy
+     * @returns {boolean}
+     */
     isJumpKill(enemy) {
         return this.character.speedY < 0 &&
             this.character.y + this.character.height <= enemy.y + enemy.height / 2;
     }
 
+    /**
+     * Checks collisions with the boss.
+     */
     checkBossCollision() {
         if (!this.bossBarVisible || !this.boss || this.boss.dead) return;
         this.triggerBossAttack();
         this.handleBossHit();
     }
 
+    /**
+     * Triggers the boss attack if the player is close enough.
+     */
     triggerBossAttack() {
         const distance = Math.abs(this.character.x - this.boss.x);
         if (distance < this.BOSS_ATTACK_DISTANCE && !this.boss.isAttacking) {
@@ -229,6 +247,9 @@ class World {
         }
     }
 
+    /**
+     * Handles damage dealt by the boss to the player.
+     */
     handleBossHit() {
         if (!this.boss.isAttacking || this.boss.hasDealtDamage) return;
         if (!this.character.isColliding(this.boss)) return;
@@ -237,17 +258,26 @@ class World {
         this.boss.hasDealtDamage = true;
     }
 
+    /**
+     * Checks collisions between the character and items.
+     */
     checkItemCollisions() {
         this.collectItems(this.level.coins, () => this.collectCoin());
         this.collectItems(this.level.bottles, () => this.collectBottle());
     }
 
+    /**
+     * Collects a coin and updates the UI.
+     */
     collectCoin() {
         this.character.coins = Math.min(this.character.coins + 5, 100);
         this.coinBar.setPercentage(this.character.coins);
         playCoinSound();
     }
 
+    /**
+     * Collects a bottle and updates the UI.
+     */
     collectBottle() {
         this.character.bottles = Math.min(
             this.character.bottles + 1,
@@ -259,6 +289,11 @@ class World {
         playBottleSound();
     }
 
+    /**
+     * Collects items if the character collides with them.
+     * @param {Array<DrawableObject>} items
+     * @param {Function} onCollect
+     */
     collectItems(items, onCollect) {
         for (let i = items.length - 1; i >= 0; i--) {
             if (!this.character.isColliding(items[i])) continue;
@@ -267,6 +302,9 @@ class World {
         }
     }
 
+    /**
+     * Checks collisions between bottles and enemies.
+     */
     checkBottleCollisions() {
         this.throwableObjects.forEach(bottle => {
             if (bottle.hasSplashed) return;
@@ -274,26 +312,36 @@ class World {
         });
     }
 
+    /**
+     * Handles bottle collisions with enemies and the boss.
+     * @param {ThrowableObject} bottle
+     */
     checkBottleHit(bottle) {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss) return;
-            if (!bottle.isColliding(enemy)) return;
+            if (!bottle.isCollidingEnemy(enemy)) return;
             enemy.hit();
             bottle.splash();
         });
-        if (this.boss && bottle.isColliding(this.boss)) {
+        if (this.boss && bottle.isCollidingEnemy(this.boss)) {
             this.boss.hit();
             this.bossBar.setPercentage(this.boss.energy);
             bottle.splash();
         }
     }
 
+    /**
+     * Checks whether the boss fight should be triggered.
+     */
     checkBossTrigger() {
         if (!this.boss || this.bossBarVisible) return;
         if (this.character.x <= this.boss.x - this.BOSS_TRIGGER_DISTANCE) return;
         this.activateBossFight();
     }
 
+    /**
+     * Activates the boss fight.
+     */
     activateBossFight() {
         this.bossBarVisible = true;
         playBossMusic();
@@ -302,6 +350,9 @@ class World {
         this.boss.startWalking();
     }
 
+    /**
+     * Sets up the boss health bar.
+     */
     setupBossBar() {
         this.bossBar.width = 300;
         this.bossBar.height = 60;

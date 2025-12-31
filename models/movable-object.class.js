@@ -5,10 +5,10 @@ class MovableObject extends drawableObject {
     acceleration = 2;
     LP = 100;
     offset = {
-        top: 10,
+        top: 40,
         bottom: 10,
-        left: 10,
-        right: 10
+        left: 20,
+        right: 20
     };
 
     /**
@@ -63,14 +63,18 @@ class MovableObject extends drawableObject {
      */
     isColliding(mo) {
         const hitboxX = this.x + 30;
-        const hitboxY = this.y + 80;
+        const hitboxY = this.y + 160;
         const hitboxW = this.width - 60;
-        const hitboxH = this.height - 60;
+        const hitboxH = this.height - 5;
+        const moHitboxX = mo.x + 30;
+        const moHitboxY = mo.y + 160;
+        const moHitboxW = mo.width - 60;
+        const moHitboxH = mo.height - 60;
         return (
-            hitboxX + hitboxW > mo.x &&
-            hitboxY + hitboxH > mo.y &&
-            hitboxX < mo.x + mo.width &&
-            hitboxY < mo.y + mo.height
+            hitboxX + hitboxW > moHitboxX &&
+            hitboxY + hitboxH > moHitboxY &&
+            hitboxX < moHitboxX + moHitboxW &&
+            hitboxY < moHitboxY + moHitboxH
         );
     }
 

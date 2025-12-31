@@ -10,7 +10,7 @@ class CharacterPepe extends MovableObject {
     lastActionTime = Date.now();
     longIdleTimeout = 15000;
     throwOnCooldown = false;
-    throwCooldown = 600;
+    throwCooldown = 800;
     isHurt = false;
     hurtTimeout = 100;
     isDeadFalling = false;
@@ -22,9 +22,6 @@ class CharacterPepe extends MovableObject {
     world;
     localGameId;
 
-    /* =========================
-       IMAGES
-    ========================= */
     IMAGES_WALKING = [
         './img/2_character_pepe/2_walk/W-21.png',
         './img/2_character_pepe/2_walk/W-22.png',
@@ -87,8 +84,11 @@ class CharacterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-56.png',
         './img/2_character_pepe/5_dead/D-57.png'
     ];
-
-constructor() {
+    
+    /**
+     * Creates a new Pepe character instance.
+     */
+    constructor() {
         super().loadImage('./img/2_character_pepe/2_walk/W-21.png');
         this.localGameId = gameId;
         this.loadAllImages();
@@ -96,6 +96,9 @@ constructor() {
         this.startAnimations();
     }
 
+    /**
+     * Loads all character image assets.
+     */
     loadAllImages() {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_IDLE);
@@ -105,11 +108,17 @@ constructor() {
         this.loadImages(this.IMAGES_PEPE_DIES);
     }
 
+    /**
+     * Starts movement and animation loops.
+     */
     startAnimations() {
         this.startMovementLoop();
         this.startAnimationLoop();
     }
 
+    /**
+     * Handles the main movement loop.
+     */
     startMovementLoop() {
         const id = this.localGameId;
         allIntervals.push(setInterval(() => {
@@ -118,6 +127,9 @@ constructor() {
         }, 1000 / 60));
     }
 
+    /**
+     * Handles all movement-related logic.
+     */
     handleMovement() {
         if (gameOver || this.isDead()) return;
         this.activateEnemiesOnFirstMove();
@@ -128,6 +140,9 @@ constructor() {
         this.handleFootsteps();
     }
 
+    /**
+     * Handles footstep sounds based on movement.
+     */
     handleFootsteps() {
         if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {
             playFootsteps();
@@ -136,6 +151,9 @@ constructor() {
         }
     }
 
+    /**
+     * Activates enemies when the character moves for the first time.
+     */
     activateEnemiesOnFirstMove() {
         if (this.hasMoved) return;
         if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) return;
@@ -143,23 +161,38 @@ constructor() {
         this.world.activateEnemies();
     }
 
+    /**
+     * Handles horizontal movement.
+     */
     handleHorizontalMovement() {
         if (this.world.keyboard.RIGHT) this.moveRight();
         if (this.world.keyboard.LEFT) this.moveLeft();
     }
 
+    /**
+     * Handles jumping logic.
+     */
     handleJump() {
         if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
     }
 
+    /**
+     * Handles bottle throwing input.
+     */
     handleBottleThrow() {
         if (this.world.keyboard.N && this.canThrow()) this.throwBottle();
     }
 
+    /**
+     * Updates camera position based on character position.
+     */
     updateCamera() {
         this.world.camera_x = -this.x + 100;
     }
 
+    /**
+     * Starts the animation loop.
+     */
     startAnimationLoop() {
         const id = this.localGameId;
         allIntervals.push(setInterval(() => {
@@ -168,6 +201,9 @@ constructor() {
         }, 120));
     }
 
+    /**
+     * Plays the correct animation based on current state.
+     */
     playCurrentAnimation() {
         if (gameOver || allowWinScreen || allowLoseScreen) {
             this.stopSnoring();
@@ -182,6 +218,9 @@ constructor() {
         this.playAnimation(this.IMAGES_IDLE);
     }
 
+    /**
+     * Plays long idle animation and snoring sound.
+     */
     playLongIdle() {
         if (!this.isSnoring) {
             this.isSnoring = true;
@@ -190,12 +229,18 @@ constructor() {
         this.playAnimation(this.IMAGES_LONG_IDLE);
     }
 
+    /**
+     * Stops the snoring sound.
+     */
     stopSnoring() {
         if (!this.isSnoring) return;
         this.isSnoring = false;
         stopSnoringSound();
     }
 
+    /**
+     * Moves the character to the right.
+     */
     moveRight() {
         if (this.x >= this.world.level.level_end_x) return;
         this.stopSnoring();
@@ -204,6 +249,9 @@ constructor() {
         this.lastActionTime = Date.now();
     }
 
+    /**
+     * Moves the character to the left.
+     */
     moveLeft() {
         if (this.x <= 0) return;
         this.stopSnoring();
@@ -212,69 +260,99 @@ constructor() {
         this.lastActionTime = Date.now();
     }
 
+    /**
+     * Makes the character jump.
+     */
     jump() {
         this.speedY = 20;
         this.lastActionTime = Date.now();
         playJumpSound();
     }
 
+    /**
+     * Checks whether a bottle can be thrown.
+     * @returns {boolean}
+     */
     canThrow() {
         return !this.throwOnCooldown && this.bottles > 0;
     }
 
+    /**
+     * Throws a bottle and applies cooldown.
+     */
     throwBottle() {
         const id = this.localGameId;
         this.throwOnCooldown = true;
         this.bottles--;
         this.updateBottleBar();
-
         const bottle = new ThrowableObject(
             this.x + (this.otherDirection ? -20 : 50),
-            this.y + 100
-        );
+            this.y + 100);
         bottle.throw(this.otherDirection);
         this.world.throwableObjects.push(bottle);
-
         allTimeouts.push(setTimeout(() => {
             if (id !== gameId) return;
             this.throwOnCooldown = false;
         }, this.throwCooldown));
     }
 
+    /**
+     * Updates the bottle status bar.
+     */
     updateBottleBar() {
         this.world.bottleBar.setPercentage(
             (this.bottles / this.MAX_BOTTLES) * 100
         );
     }
 
+    /**
+     * Checks whether the character is moving.
+     * @returns {boolean}
+     */
     isMoving() {
         return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
     }
 
+    /**
+     * Checks whether the character has been idle for a long time.
+     * @returns {boolean}
+     */
     isLongIdle() {
         return Date.now() - this.lastActionTime > this.longIdleTimeout;
     }
 
+    /**
+     * Plays jump-up animation.
+     */
     playJumpUp() {
         this.playAnimation(this.IMAGES_JUMP.slice(3, 4));
     }
 
+    /**
+     * Plays jump-down animation.
+     */
     playJumpDown() {
         this.playAnimation(this.IMAGES_JUMP.slice(4));
     }
 
+    /**
+     * Applies damage to the character.
+     * @param {number} damage
+     */
     hit(damage = 40) {
         if (this.isHurt || this.isDead()) return;
         this.LP = Math.max(0, this.LP - damage);
         this.startHurt();
     }
 
+    /**
+     * Starts the hurt state.
+     */
     startHurt() {
         const id = this.localGameId;
         this.stopSnoring();
         this.isHurt = true;
         playHurtSound();
-
         allTimeouts.push(setTimeout(() => {
             if (id !== gameId) return;
             this.isHurt = false;
@@ -282,6 +360,9 @@ constructor() {
         }, this.hurtTimeout));
     }
 
+    /**
+     * Handles character death.
+     */
     die() {
         if (this.isDeadFalling || gameOver) return;
         gameOver = true;
@@ -293,11 +374,13 @@ constructor() {
         this.showLoseScreen();
     }
 
+    /**
+     * Starts the death animation.
+     */
     startDeathAnimation() {
         const id = this.localGameId;
         this.isDeadFalling = true;
         this.deathImageIndex = 0;
-
         allIntervals.push(setInterval(() => {
             if (id !== gameId) return;
             this.y += this.deathFallSpeed;
@@ -308,6 +391,7 @@ constructor() {
         }, 100));
     }
 
+    /*** Displays the lose screen and end options.*/
     showLoseScreen() {
         const id = this.localGameId;
         allTimeouts.push(setTimeout(() => {
