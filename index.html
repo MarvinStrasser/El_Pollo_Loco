@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pollo Loco</title>
+    <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="models/drawable-object.class.js"></script>
+    <script src="models/movable-object.class.js"></script>
+    <script src="models/character.class.js"></script>
+    <script src="models/enemy.class.js"></script>
+    <script src="models/small-enemy.class.js"></script>
+    <script src="models/cloud.class.js"></script>
+    <script src="models/status-bar.class.js"></script>
+    <script src="models/world.class.js"></script>
+    <script src="models/background-object.class.js"></script>
+    <script src="models/keyboard.class.js"></script>
+    <script src="models/endboss.class.js"></script>
+    <script src="models/items/coins.class.js"></script>
+    <script src="models/items/bottles.class.js"></script>
+    <script src="models/items/throwable-object.class.js"></script>
+    <script src="models/level.class.js"></script>
+    <script src="./level/level1.js"></script>
+    <script src="./javascript/audio.js"></script>
+    <script src="./javascript/game.js"></script>
+</head>
+
+<body onload="init()">
+
+    <div id="loadingScreen">
+        <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Loading Screen">
+    </div>
+
+    <div id="mainMenu" class="hidden">
+        <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
+
+        <div class="menu-buttons">
+            <button class="btn" onclick="playButtonSound(), startGame()">Start</button>
+            <button class="btn" onclick="playButtonSound(), openControls()">Steuerung</button>
+            <button class="btn" onclick="playButtonSound(), openAudioMenu()">Audio</button>
+            <button class="btn" onclick="playButtonSound(), openImpressum()">Impressum</button>
+        </div>
+    </div>
+
+    <section class="controls">
+        <div id="controlsMenu" class="hidden">
+            <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
+
+            <div class="controls-content">
+                <div class="controls-text">
+                    <h2>Spielerklärung</h2>
+                    <p>
+                        Du bist Pepe und musst die Hühner besiegen!<br><br>
+                        Deine Aufgabe ist es, so viele Münzen wie möglich zu sammeln. Auf deinem Weg findest du deinen
+                        geliebten Tabasco, der brennt wie Feuer.
+                        <br><br>
+                        Also Vorsicht - wirf ihn nicht auf jemanden!
+                    </p>
+                </div>
+
+                <div class="controls-keys">
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_walk.png" alt="" class="control_img">
+                        <div class="text_mobile">
+                            <p class="controls_mobile">Walk</p>
+                        </div>
+                        <div class="key-text">Gehen</div>
+                    </div>
+
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_jump.png" alt="" class="control_img">
+                        <div class="text_mobile">
+                            <p class="controls_mobile">Jump</p>
+                        </div>
+                        <div class="key-text">Springen</div>
+                    </div>
+
+                    <div class="control-row">
+                        <img src="./img/9_intro_outro_screens/start/controls_throw.png" alt="" class="control_img">
+                        <div class="text_mobile">
+                            <p class="controls_mobile">Throw</p>
+                        </div>
+                        <div class="key-text">Werfen</div>
+                    </div>
+
+                    <div class="back">
+                        <button class="btn" onclick="playButtonSound(), backToMenu()">Zurück</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="audio">
+        <div id="audioMenu" class="hidden">
+            <img class="menu-bg" src="./img/9_intro_outro_screens/start/main_menu_background.png">
+
+            <div class="audio-content">
+                <div class="audio-text">
+                    <h2>Audio</h2>
+                    <p>Hier kannst du den Sound im Spiel aktivieren oder deaktivieren.</p>
+                </div>
+
+                <div class="audio-settings">
+                    <label class="audio-row">
+                        <input type="checkbox" id="audioCheckbox" onchange="toggleAudio()">
+                        <span class="audio-label">Sound aktiv</span>
+                    </label>
+
+                    <button class="btn" onclick="playButtonSound(), backFromAudio()">Zurück</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="impressum">
+        <div id="impressumOverlay" class="hidden">
+            <img class="menu-bg" src="img/9_intro_outro_screens/start/main_menu_background.png">
+
+            <div class="impressum-content">
+                <div class="impressum_mobile">
+                    <h2>Impressum</h2>
+
+                    <p>
+                        Angaben gemäß <a href="https://www.gesetze-im-internet.de/ddg/__5.html" target="_blank"
+                            rel="noopener noreferrer">§ 5 TMG</a><br><br>
+
+                        <strong>Marvin Straßer</strong><br>
+                        Innerlohenerstraße 11<br>
+                        83324 Ruhpolding<br>
+                        Deutschland<br><br>
+
+                        <strong>Kontakt</strong><br>
+                        E-Mail: <a href="mailto:reibadatschie@web.de.de">reibadatschie@web.de</a>
+                    </p>
+                </div>
+                <div class="impressum_btn_mobile">
+                    <button class="btn back-btn" onclick="playButtonSound(), closeImpressum()">Zurück</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="mobileControls">
+        <div class="left-controls">
+            <button class="touch-btn throw" id="btnThrow">Throw</button>
+            <button class="touch-btn jump" id="btnJump">Jump</button>
+        </div>
+
+        <div class="right-controls">
+
+            <button class="touch-btn" id="btnLeft">◀</button>
+            <button class="touch-btn" id="btnRight">▶</button>
+        </div>
+    </div>
+
+    <div id="gameLoading" class="hidden">
+        <img src="img/loading_screen.png" alt="Loading">
+    </div>
+
+    <canvas id="gameCanvas" width="720" height="480"></canvas>
+
+    <div id="loseScreen" class="end-screen hidden">
+        <img class="win_loose_screen" src="./img/you_won_you_lost/you_lost.png">
+    </div>
+
+    <div id="winScreen" class="end-screen hidden">
+        <img class="win_loose_screen" src="./img/you_won_you_lost/you_win_a.png">
+    </div>
+
+    <div id="endOptionsScreen" class="end-screen hidden">
+        <img class="menu-bg" src="./img/9_intro_outro_screens/start/main_menu_background.png">
+
+        <div class="menu-buttons">
+            <button class="btn_restart" onclick="playButtonSound(),unlockAudio(), restartGame()">Nochmal
+                spielen</button>
+            <button class="btn_restart" onclick="playButtonSound(), goToMenu()">Zurück zum Menü</button>
+        </div>
+    </div>
+
+    <div id="rotateOverlay">
+        <p>Rotate your Phone</p>
+    </div>
+
+</body>
+
+</html>
