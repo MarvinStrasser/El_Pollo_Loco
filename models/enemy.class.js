@@ -8,6 +8,7 @@ class EnemyChicken extends MovableObject {
     DAMAGE = 20;
     ANIMATION_SPEED = 120;
     REMOVE_DELAY = 5000;
+    localGameId;
     offset = {
         top: 12,
         bottom: 12,
@@ -23,12 +24,13 @@ class EnemyChicken extends MovableObject {
         'img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
     ];
 
-    /**
+  /**
      * Creates a chicken enemy.
      * @param {number} x
      */
     constructor(x) {
         super().loadImage(this.IMAGES_WALKING[0]);
+        this.localGameId = gameId;
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_DEAD);
         this.x = x;
@@ -47,10 +49,11 @@ class EnemyChicken extends MovableObject {
      * Starts enemy animation loop.
      */
     startAnimation() {
-        this.animationInterval = setInterval(
-            () => this.animate(),
-            this.ANIMATION_SPEED
-        );
+        const id = this.localGameId;
+        allIntervals.push(setInterval(() => {
+            if (id !== gameId) return;
+            this.animate();
+        }, this.ANIMATION_SPEED));
     }
 
     /**
@@ -60,14 +63,6 @@ class EnemyChicken extends MovableObject {
         if (gameOver || this.dead || !this.active) return;
         this.x -= this.speed;
         this.playAnimation(this.IMAGES_WALKING);
-    }
-
-    /**
-     * Checks if animation should stop.
-     * @returns {boolean}
-     */
-    shouldStop() {
-        return gameOver || this.dead || !this.active;
     }
 
     /**
@@ -102,7 +97,6 @@ class EnemyChicken extends MovableObject {
      */
     playDeathAnimation() {
         playChickenSplatSound();
-        clearInterval(this.animationInterval);
         this.img = this.imageCache[this.IMAGES_DEAD[0]];
     }
 
@@ -110,6 +104,10 @@ class EnemyChicken extends MovableObject {
      * Removes enemy after delay.
      */
     scheduleRemoval() {
-        setTimeout(() => this.remove = true, this.REMOVE_DELAY);
+        const id = this.localGameId;
+        allTimeouts.push(setTimeout(() => {
+            if (id !== gameId) return;
+            this.remove = true;
+        }, this.REMOVE_DELAY));
     }
 }

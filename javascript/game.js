@@ -5,25 +5,19 @@ let gameOver = false;
 let allowWinScreen = false;
 let allowLoseScreen = false;
 let initTimeout;
+let allIntervals = [];
+let allTimeouts = [];
+let gameId = 0;
 const BASE_WIDTH = 720;
 const BASE_HEIGHT = 480;
 
-/* =========================
-   INITIALIZATION
-========================= */
 
-/**
- * Initializes the game on page load.
- */
 function init() {
     hideImpressum();
     startLoadingSequence();
     enforceLandscapeMode();
 }
 
-/**
- * Starts the loading screen logic.
- */
 function startLoadingSequence() {
     const loadingScreen = getElement('loadingScreen');
     const mainMenu = getElement('mainMenu');
@@ -33,10 +27,6 @@ function startLoadingSequence() {
     }, 2500);
 }
 
-/**
- * Handles auto start or menu display.
- * @param {HTMLElement} mainMenu
- */
 function handleAutoStart(mainMenu) {
     if (sessionStorage.getItem('autoStartGame') === 'true') {
         sessionStorage.removeItem('autoStartGame');
@@ -48,19 +38,10 @@ function handleAutoStart(mainMenu) {
     }
 }
 
-/**
- * Hides the impressum overlay.
- */
 function hideImpressum() {
     getElement('impressumOverlay').classList.add('hidden');
 }
 
-/* =========================
-   GAME START
-========================= */
-/**
- * Starts a new game.
- */
 function startGame() {
     clearInitTimeout();
     prepareGameView();
@@ -68,18 +49,12 @@ function startGame() {
     initWorldWithLoading();
 }
 
-/**
- * Clears loading timeout.
- */
 function clearInitTimeout() {
     if (!initTimeout) return;
     clearTimeout(initTimeout);
     initTimeout = null;
 }
 
-/**
- * Prepares UI for game view.
- */
 function prepareGameView() {
     getElement('mainMenu').classList.add('hidden');
     getElement('loadingScreen').style.display = 'none';
@@ -87,17 +62,11 @@ function prepareGameView() {
     getElement('gameLoading').classList.remove('hidden');
 }
 
-/**
- * Starts game music.
- */
 function startGameAudio() {
     stopMenuMusic();
     playGameMusic();
 }
 
-/**
- * Initializes the world with a minimum loading time.
- */
 function initWorldWithLoading() {
     const startTime = Date.now();
     const MIN_LOADING_TIME = 700;
@@ -109,10 +78,8 @@ function initWorldWithLoading() {
     });
 }
 
-/**
- * Creates the game world.
- */
 function createWorld() {
+    gameId++;
     canvas = getElement('gameCanvas');
     world = new World(canvas, keyboard);
     currentScreen = 'game';
@@ -120,85 +87,70 @@ function createWorld() {
     updateMobileControlsVisibility();
 }
 
-/**
- * Finalizes loading screen.
- * @param {number} startTime
- * @param {number} minTime
- */
 function finalizeLoading(startTime, minTime) {
     const elapsed = Date.now() - startTime;
     const remaining = Math.max(0, minTime - elapsed);
-    setTimeout(() => {
+    allTimeouts.push(setTimeout(() => {
         getElement('gameLoading').classList.add('hidden');
-    }, remaining);
+    }, remaining));
 }
 
-/* =========================
-   GAME END & RESTART
-========================= */
-/**
- * Shows end options after delay.
- */
+
 function showEndOptionsAfterDelay() {
-    setTimeout(showEndOptions, 5000);
+    allTimeouts.push(setTimeout(showEndOptions, 5000));
 }
 
-/**
- * Displays end option screen.
- */
 function showEndOptions() {
     hideElement('winScreen');
     hideElement('loseScreen');
     showElement('endOptionsScreen');
 }
 
-/**
- * Restarts the game.
- */
 function restartGame() {
     resetEndScreens();
     resetGameState();
+
+    world = null;
+    canvas = null;
     createWorld();
     restartGameAudio();
 }
 
-/**
- * Resets end screens.
- */
 function resetEndScreens() {
     hideElement('winScreen');
     hideElement('loseScreen');
     hideElement('endOptionsScreen');
 }
 
-/**
- * Resets game state.
- */
 function resetGameState() {
     gameOver = false;
     allowWinScreen = false;
     allowLoseScreen = false;
     currentScreen = 'game';
+    stopFootsteps();
+    stopSnoringSound();
+    clearAllIntervals();
+    clearAllTimeouts();
 }
 
-/**
- * Restarts audio for game.
- */
+function clearAllIntervals() {
+    allIntervals.forEach(id => clearInterval(id));
+    allIntervals = [];
+}
+
+function clearAllTimeouts() {
+    allTimeouts.forEach(id => clearTimeout(id));
+    allTimeouts = [];
+}
+
 function restartGameAudio() {
     stopAllMusic();
     playGameMusic();
 }
 
-/**
- * Reloads the page.
- */
 function goToMenu() {
     location.reload();
 }
-
-/* =========================
-   MENUS
-========================= */
 
 function openControls() {
     switchMenu('controlsMenu');
@@ -227,56 +179,29 @@ function closeImpressum() {
     switchMenu('mainMenu');
 }
 
-/**
- * Switches visible menu.
- * @param {string} targetId
- */
 function switchMenu(targetId) {
     hideAllMenus();
     showElement(targetId);
 }
 
-/**
- * Hides all menus.
- */
 function hideAllMenus() {
     ['mainMenu', 'controlsMenu', 'audioMenu', 'impressumOverlay']
         .forEach(hideElement);
 }
 
-/**
- * Syncs audio checkbox state.
- */
 function syncAudioCheckbox() {
     const checkbox = getElement('audioCheckbox');
     if (checkbox) checkbox.checked = audioEnabled;
 }
 
-/* =========================
-   INPUT HANDLING
-========================= */
-
-/**
- * Handles key down.
- * @param {KeyboardEvent} event
- */
 function handleKeyDown(event) {
     setKeyState(event.keyCode, true);
 }
 
-/**
- * Handles key up.
- * @param {KeyboardEvent} event
- */
 function handleKeyUp(event) {
     setKeyState(event.keyCode, false);
 }
 
-/**
- * Sets keyboard state.
- * @param {number} keyCode
- * @param {boolean} state
- */
 function setKeyState(keyCode, state) {
     const keyMap = {
         37: 'LEFT',
@@ -288,10 +213,6 @@ function setKeyState(keyCode, state) {
     };
     if (keyMap[keyCode]) keyboard[keyMap[keyCode]] = state;
 }
-
-/* =========================
-   MOBILE CONTROLS
-========================= */
 
 function initMobileControls() {
     if (window.innerWidth > 768) return;
@@ -320,10 +241,6 @@ function updateMobileControlsVisibility() {
     const isMobile = window.innerWidth <= 768;
     controls.style.display = (isMobile && currentScreen === 'game') ? 'block' : 'none';
 }
-
-/* =========================
-   CANVAS & ORIENTATION
-========================= */
 
 function resizeCanvas() {
     canvas = getElement('gameCanvas');
@@ -355,10 +272,6 @@ function enforceLandscapeMode() {
     overlay.style.display = (window.innerWidth < 1024 && isPortrait) ? 'flex' : 'none';
 }
 
-/* =========================
-   HELPERS
-========================= */
-
 function getElement(id) {
     return document.getElementById(id);
 }
@@ -370,10 +283,6 @@ function hideElement(id) {
 function showElement(id) {
     getElement(id)?.classList.remove('hidden');
 }
-
-/* =========================
-   EVENT LISTENERS
-========================= */
 
 window.addEventListener('load', () => {
     initMenuSounds();

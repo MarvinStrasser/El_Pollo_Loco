@@ -23,6 +23,7 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
         this.level = createLevel1();
+        this.localGameId = gameId;
         this.initWorld();
     }
 
@@ -64,6 +65,7 @@ class World {
      * Main game loop.
      */
     draw() {
+        if (this.localGameId !== gameId) return;
         this.updateGameLogic();
         this.renderFrame();
         requestAnimationFrame(() => this.draw());
@@ -156,8 +158,8 @@ class World {
     }
 
     /**
- * Activates all enemies in the level.
- */
+     * Activates all enemies in the level.
+     */
     activateEnemies() {
         this.level.enemies.forEach(enemy => enemy.active = true);
     }
@@ -191,9 +193,6 @@ class World {
         this.checkItemCollisions();
     }
 
-    /**
-     * Checks enemy collisions.
-     */
     checkEnemyCollisions() {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss || enemy.dead) return;
@@ -202,10 +201,6 @@ class World {
         });
     }
 
-    /**
-     * Handles enemy collision logic.
-     * @param {Enemy} enemy
-     */
     handleEnemyCollision(enemy) {
         if (this.isJumpKill(enemy)) {
             enemy.die();
@@ -216,28 +211,17 @@ class World {
         }
     }
 
-    /**
-     * Checks jump kill condition.
-     * @param {Enemy} enemy
-     * @returns {boolean}
-     */
     isJumpKill(enemy) {
         return this.character.speedY < 0 &&
             this.character.y + this.character.height <= enemy.y + enemy.height / 2;
     }
 
-    /**
-     * Checks boss collision.
-     */
     checkBossCollision() {
         if (!this.bossBarVisible || !this.boss || this.boss.dead) return;
         this.triggerBossAttack();
         this.handleBossHit();
     }
 
-    /**
-     * Triggers boss attack.
-     */
     triggerBossAttack() {
         const distance = Math.abs(this.character.x - this.boss.x);
         if (distance < this.BOSS_ATTACK_DISTANCE && !this.boss.isAttacking) {
@@ -245,9 +229,6 @@ class World {
         }
     }
 
-    /**
-     * Handles boss damage.
-     */
     handleBossHit() {
         if (!this.boss.isAttacking || this.boss.hasDealtDamage) return;
         if (!this.character.isColliding(this.boss)) return;
@@ -256,26 +237,17 @@ class World {
         this.boss.hasDealtDamage = true;
     }
 
-    /**
-     * Checks item collisions.
-     */
     checkItemCollisions() {
         this.collectItems(this.level.coins, () => this.collectCoin());
         this.collectItems(this.level.bottles, () => this.collectBottle());
     }
 
-    /**
-     * Collects a coin.
-     */
     collectCoin() {
         this.character.coins = Math.min(this.character.coins + 5, 100);
         this.coinBar.setPercentage(this.character.coins);
         playCoinSound();
     }
 
-    /**
-     * Collects a bottle.
-     */
     collectBottle() {
         this.character.bottles = Math.min(
             this.character.bottles + 1,
@@ -287,11 +259,6 @@ class World {
         playBottleSound();
     }
 
-    /**
-     * Collects items.
-     * @param {Array} items
-     * @param {Function} onCollect
-     */
     collectItems(items, onCollect) {
         for (let i = items.length - 1; i >= 0; i--) {
             if (!this.character.isColliding(items[i])) continue;
@@ -300,9 +267,6 @@ class World {
         }
     }
 
-    /**
-     * Checks bottle collisions.
-     */
     checkBottleCollisions() {
         this.throwableObjects.forEach(bottle => {
             if (bottle.hasSplashed) return;
@@ -310,10 +274,6 @@ class World {
         });
     }
 
-    /**
-     * Handles bottle hits.
-     * @param {ThrowableObject} bottle
-     */
     checkBottleHit(bottle) {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss) return;
@@ -328,18 +288,12 @@ class World {
         }
     }
 
-    /**
-     * Checks boss trigger.
-     */
     checkBossTrigger() {
         if (!this.boss || this.bossBarVisible) return;
         if (this.character.x <= this.boss.x - this.BOSS_TRIGGER_DISTANCE) return;
         this.activateBossFight();
     }
 
-    /**
-     * Activates boss fight.
-     */
     activateBossFight() {
         this.bossBarVisible = true;
         playBossMusic();
@@ -348,9 +302,6 @@ class World {
         this.boss.startWalking();
     }
 
-    /**
-     * Sets up boss bar UI.
-     */
     setupBossBar() {
         this.bossBar.width = 300;
         this.bossBar.height = 60;

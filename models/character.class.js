@@ -20,6 +20,7 @@ class CharacterPepe extends MovableObject {
     isSnoring = false;
     hasMoved = false;
     world;
+    localGameId;
 
     /* =========================
        IMAGES
@@ -87,19 +88,14 @@ class CharacterPepe extends MovableObject {
         './img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    /**
-     * Creates the character.
-     */
-    constructor() {
+constructor() {
         super().loadImage('./img/2_character_pepe/2_walk/W-21.png');
+        this.localGameId = gameId;
         this.loadAllImages();
         this.applyGravity();
         this.startAnimations();
     }
 
-    /**
-     * Loads all character images.
-     */
     loadAllImages() {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_IDLE);
@@ -109,24 +105,19 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.IMAGES_PEPE_DIES);
     }
 
-    /**
-     * Starts animation loops.
-     */
     startAnimations() {
         this.startMovementLoop();
         this.startAnimationLoop();
     }
 
-    /**
-     * Handles movement input.
-     */
     startMovementLoop() {
-        setInterval(() => this.handleMovement(), 1000 / 60);
+        const id = this.localGameId;
+        allIntervals.push(setInterval(() => {
+            if (id !== gameId) return;
+            this.handleMovement();
+        }, 1000 / 60));
     }
 
-    /**
-     * Handles character movement.
-     */
     handleMovement() {
         if (gameOver || this.isDead()) return;
         this.activateEnemiesOnFirstMove();
@@ -137,23 +128,14 @@ class CharacterPepe extends MovableObject {
         this.handleFootsteps();
     }
 
-    /**
-    * Handles footstep sounds based on movement.
-    */
     handleFootsteps() {
-        if (
-            (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
-            !this.aboveGround()
-        ) {
+        if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.aboveGround()) {
             playFootsteps();
         } else {
             stopFootsteps();
         }
     }
 
-    /**
-     * Activates enemies after first movement.
-     */
     activateEnemiesOnFirstMove() {
         if (this.hasMoved) return;
         if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) return;
@@ -161,49 +143,31 @@ class CharacterPepe extends MovableObject {
         this.world.activateEnemies();
     }
 
-    /**
-     * Handles left and right movement.
-     */
     handleHorizontalMovement() {
         if (this.world.keyboard.RIGHT) this.moveRight();
         if (this.world.keyboard.LEFT) this.moveLeft();
     }
 
-    /**
-     * Handles jumping.
-     */
     handleJump() {
-        if (this.world.keyboard.UP && !this.aboveGround()) {
-            this.jump();
-        }
+        if (this.world.keyboard.UP && !this.aboveGround()) this.jump();
     }
 
-    /**
-     * Handles bottle throwing.
-     */
     handleBottleThrow() {
-        if (this.world.keyboard.N && this.canThrow()) {
-            this.throwBottle();
-        }
+        if (this.world.keyboard.N && this.canThrow()) this.throwBottle();
     }
 
-    /**
-     * Updates camera position.
-     */
     updateCamera() {
         this.world.camera_x = -this.x + 100;
     }
 
-    /**
-     * Starts animation loop.
-     */
     startAnimationLoop() {
-        setInterval(() => this.playCurrentAnimation(), 120);
+        const id = this.localGameId;
+        allIntervals.push(setInterval(() => {
+            if (id !== gameId) return;
+            this.playCurrentAnimation();
+        }, 120));
     }
 
-    /**
-     * Plays correct animation.
-     */
     playCurrentAnimation() {
         if (gameOver || allowWinScreen || allowLoseScreen) {
             this.stopSnoring();
@@ -218,9 +182,6 @@ class CharacterPepe extends MovableObject {
         this.playAnimation(this.IMAGES_IDLE);
     }
 
-    /**
-     * Plays long idle animation.
-     */
     playLongIdle() {
         if (!this.isSnoring) {
             this.isSnoring = true;
@@ -229,19 +190,12 @@ class CharacterPepe extends MovableObject {
         this.playAnimation(this.IMAGES_LONG_IDLE);
     }
 
-    /**
-     * Stops snoring sound.
-     */
     stopSnoring() {
         if (!this.isSnoring) return;
         this.isSnoring = false;
         stopSnoringSound();
     }
 
-    /* =========================
-       ACTIONS
-    ========================= */
-    /** Description placeholder */
     moveRight() {
         if (this.x >= this.world.level.level_end_x) return;
         this.stopSnoring();
@@ -250,7 +204,6 @@ class CharacterPepe extends MovableObject {
         this.lastActionTime = Date.now();
     }
 
-    /** Description placeholder */
     moveLeft() {
         if (this.x <= 0) return;
         this.stopSnoring();
@@ -259,102 +212,76 @@ class CharacterPepe extends MovableObject {
         this.lastActionTime = Date.now();
     }
 
-    /** Description placeholder */
     jump() {
         this.speedY = 20;
         this.lastActionTime = Date.now();
         playJumpSound();
     }
 
-    /**
-     * Description placeholder
-     *
-     * @returns {boolean} 
-     */
     canThrow() {
         return !this.throwOnCooldown && this.bottles > 0;
     }
 
-    /** Description placeholder */
     throwBottle() {
+        const id = this.localGameId;
         this.throwOnCooldown = true;
         this.bottles--;
         this.updateBottleBar();
+
         const bottle = new ThrowableObject(
             this.x + (this.otherDirection ? -20 : 50),
             this.y + 100
         );
         bottle.throw(this.otherDirection);
         this.world.throwableObjects.push(bottle);
-        setTimeout(() => this.throwOnCooldown = false, this.throwCooldown);
+
+        allTimeouts.push(setTimeout(() => {
+            if (id !== gameId) return;
+            this.throwOnCooldown = false;
+        }, this.throwCooldown));
     }
 
-    /** Description placeholder */
     updateBottleBar() {
         this.world.bottleBar.setPercentage(
             (this.bottles / this.MAX_BOTTLES) * 100
         );
     }
 
-    /* =========================
-       STATE
-    ========================= */
-    /**
-     * Description placeholder
-     *
-     * @returns {*} 
-     */
     isMoving() {
         return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
     }
 
-    /**
-     * Description placeholder
-     *
-     * @returns {boolean} 
-     */
     isLongIdle() {
         return Date.now() - this.lastActionTime > this.longIdleTimeout;
     }
 
-    /** Description placeholder */
     playJumpUp() {
         this.playAnimation(this.IMAGES_JUMP.slice(3, 4));
     }
 
-    /** Description placeholder */
     playJumpDown() {
         this.playAnimation(this.IMAGES_JUMP.slice(4));
     }
 
-    /* =========================
-       DAMAGE & DEATH
-    ========================= */
-
-    /**
-     * Description placeholder
-     *
-     * @param {number} [damage=40] 
-     */
     hit(damage = 40) {
         if (this.isHurt || this.isDead()) return;
         this.LP = Math.max(0, this.LP - damage);
         this.startHurt();
     }
 
-    /** Description placeholder */
     startHurt() {
+        const id = this.localGameId;
         this.stopSnoring();
         this.isHurt = true;
         playHurtSound();
 
-        setTimeout(() => {
+        allTimeouts.push(setTimeout(() => {
+            if (id !== gameId) return;
             this.isHurt = false;
             if (this.isDead()) this.die();
-        }, this.hurtTimeout);
+        }, this.hurtTimeout));
     }
 
-    /** Description placeholder */
     die() {
         if (this.isDeadFalling || gameOver) return;
         gameOver = true;
@@ -366,27 +293,31 @@ class CharacterPepe extends MovableObject {
         this.showLoseScreen();
     }
 
-    /** Description placeholder */
     startDeathAnimation() {
+        const id = this.localGameId;
         this.isDeadFalling = true;
         this.deathImageIndex = 0;
-        this.deathInterval = setInterval(() => {
+
+        allIntervals.push(setInterval(() => {
+            if (id !== gameId) return;
             this.y += this.deathFallSpeed;
             if (this.deathImageIndex >= this.IMAGES_PEPE_DIES.length) return;
             const path = this.IMAGES_PEPE_DIES[this.deathImageIndex];
             this.img = this.imageCache[path];
             this.deathImageIndex++;
-        }, 100);
+        }, 100));
     }
 
-    /** Description placeholder */
     showLoseScreen() {
-        setTimeout(() => {
+        const id = this.localGameId;
+        allTimeouts.push(setTimeout(() => {
+            if (id !== gameId) return;
             showElement('loseScreen');
-            setTimeout(() => {
+            allTimeouts.push(setTimeout(() => {
+                if (id !== gameId) return;
                 hideElement('loseScreen');
                 showElement('endOptionsScreen');
-            }, 5000);
-        }, 1200);
+            }, 5000));
+        }, 1200));
     }
 }
